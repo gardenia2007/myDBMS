@@ -10,6 +10,7 @@
 #define DBMS_H_
 
 #include <iostream>
+#include <string>
 #include "const.h"
 
 using namespace std;
@@ -27,11 +28,15 @@ public:
 	void run();
 
 private:
-	char sql[MAX_SQL_LENGTH];
+	string sql;
 	Data data[MAX_CONDITION_SIZE];
 	int operate;
 
-	void parseSql();
+	//解析SQL
+	bool parseSql();
+	int parseOpreate(string word);
+
+
 	void dispatchSql();
 
 	bool createDatabase();
@@ -42,6 +47,9 @@ private:
 	bool insertTable();
 	bool updateTable();
 	bool deleteTable();
+
+	bool createDatabase();
+	bool deleteDatabase();
 
 	void select();
 
