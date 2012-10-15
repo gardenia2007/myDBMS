@@ -1,13 +1,24 @@
 /*
  * File.h
  *	文件操作类,维护DBMS的数据文件
+ *	堆文件 + B+树索引
  *  Created on: 2012-10-14
  *      Author: y
  */
 
 #ifndef FILE_H_
 #define FILE_H_
+
+#ifndef CONST_H_
 #include "const.h"
+#endif
+
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <sys/stat.h>
+
+using namespace std;
 
 class File {
 public:
@@ -15,16 +26,29 @@ public:
 	virtual ~File();
 
 	// 外部接口，供DBMS调用
-	bool selectDatabase(char* databaseName);
+	bool openDB(const char *);
+	bool createDB(const char *);
+	bool deleteDB();
 
-	bool read();
+	//basic table opreation
+	bool createTable(const char *, Data *);
+	bool insertTable();
+	bool updateTable();
+	bool deleteTable();
+
+
+	bool read(char*);
 	bool write();
 
 private:
 	char databaseName[MAX_DATABASENAME_SIZE];
+	string dbName;
+	fstream file;
+
+
 	// 按块读写
-	void readBlock();
-	void writeBlock();
+	void readBlock(int block);
+	void writeBlock(int block);
 
 };
 

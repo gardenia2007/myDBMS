@@ -9,16 +9,16 @@
 #ifndef DBMS_H_
 #define DBMS_H_
 
+#ifndef CONST_H_
+#include "const.h"
+#endif
+
 #include <iostream>
 #include <string>
-#include "const.h"
+#include <stdlib.h>
+#include "File.h"
 
 using namespace std;
-
-struct Data{
-	char name[MAX_NAME_SIZE];
-	char value[MAX_VALUE_SIZE];
-};
 
 
 class DBMS {
@@ -28,19 +28,22 @@ public:
 	void run();
 
 private:
-	string sql;
-	Data data[MAX_CONDITION_SIZE];
+	string sql, result;
+
+	File *file;
+	unsigned int pos; //当前解析位置
+	char dbName[MAX_DBNAME_LEGTH];
+	char tableName[MAX_DBNAME_LEGTH];
+	Data *data;
 	int operate;
 
-	//解析SQL
-	bool parseSql();
-	int parseOpreate(string word);
 
+	void parseOpreate();
 
 	void dispatchSql();
 
-	bool createDatabase();
-	bool deleteDatabase();
+	bool createDB();
+	bool deleteDB();
 
 	//basic table opreation
 	bool createTable();
@@ -48,12 +51,20 @@ private:
 	bool updateTable();
 	bool deleteTable();
 
-	bool createDatabase();
-	bool deleteDatabase();
+	//parse opreate sql
+	bool parseCreateTable();
+	bool parseCreateDB();
+	bool parseInsert();
+
+	//bool createDatabase();
+	//bool deleteDatabase();
 
 	void select();
 
 
+	//char * getFirstWord();
+	int getNextWord(char* ,int);
+	bool endOfSql();
 
 
 };
