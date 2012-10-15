@@ -56,12 +56,14 @@ bool File::createDB(const char* databaseName) {
 	}
 }
 
-bool File::openDB(const char* databaseName) {
-	string dbName(databaseName);
+bool File::useDB(const char* databaseName) {
+	this->dbName.assign(databaseName);
+//	cout << "file db name is" << this->dbName << endl;
 	file.open((DATA_PATH + dbName + DATA_FILE_NAME).data(),
 			ios::in | ios::out | ios::binary);
-	if (file.fail()) // 数据文件不存在，即数据库不存在
+	if (file.fail()){ // 数据文件不存在，即数据库不存在
+		cout << "file db name is" << this->dbName << endl;
 		return false;
-	else
+	} else
 		return true;
 }

@@ -11,11 +11,12 @@ DBMS::DBMS() {
 	this->operate = SELECT_TABLE;
 	this->file = new File();
 	this->pos = 0;
+	result = "";
 	data = NULL;
 }
 
 void DBMS::run() {
-	cout << "I am running!" << endl;
+	cout << "Welcome to myDBMS!!" << endl;
 	while (1) {
 		getline(cin, this->sql);
 		this->parseOpreate();
@@ -58,12 +59,13 @@ bool DBMS::parseCreateTable() {
 	return true;
 }
 bool DBMS::createTable() {
-	cout << "create table" << endl;
-	if (!parseCreateTable())
+	if (!parseCreateTable() || !file->createTable(tableName, data)){
+		result = "create table <" + string(this->tableName) + "> fail!";
 		return false;
-	if (!file->createTable(tableName, data))
-		return false;
-	return true;
+	}else{
+		result = "create table <" + string(this->tableName) + "> success!";
+		return true;
+	}
 }
 
 bool DBMS::deleteTable() {
@@ -76,24 +78,41 @@ bool DBMS::updateTable() {
 	return true;
 }
 
-bool DBMS::parseCreateDB() {
+bool DBMS::parseDBName() {
 	if (this->getNextWord(this->dbName, MAX_DBNAME_LEGTH) != -1)
 		return true;
 	else
 		return false;
 }
 
+bool DBMS::useDB() {
+	if (!this->parseDBName() || !this->file->useDB(this->dbName)) {
+		result = "database <" + string(dbName) + "> not found!";
+		return false;
+	} else {
+		result = "use database <" + string(dbName) + "> success!";
+		return true;
+	}
+}
+
 bool DBMS::createDB() {
-	if (!this->parseCreateDB())
+	if (!this->parseDBName() || !this->file->createDB(this->dbName)) {
+		result = "create database <" + string(dbName) + "> fail!";
 		return false;
-	if (!this->file->createDB(this->dbName))
-		return false;
-	return true;
+	} else {
+		result = "create database <" + string(dbName) + "> success!";
+		return true;
+	}
 }
 
 bool DBMS::deleteDB() {
-
-	return true;
+	if (!this->parseDBName()) {
+		result = "delete database <" + string(dbName) + "> fail!";
+		return false;
+	}else{
+		result = "delete database <" + string(dbName) + "> success!";
+		return false;
+	}
 }
 
 bool DBMS::endOfSql() {
@@ -147,7 +166,7 @@ int DBMS::getNextWord(char* word, int size = 32) {
 }
 
 void DBMS::dispatchSql() {
-	cout << this->operate << endl;
+//	cout << this->operate << endl;
 	switch (this->operate) {
 	case SELECT_TABLE:
 		this->select();
@@ -166,6 +185,9 @@ void DBMS::dispatchSql() {
 		break;
 	case CREATE_DATABASE:
 		this->createDB();
+		break;
+	case USE_DATABASE:
+		this->useDB();
 		break;
 	case DELETE_DATABASE:
 		this->deleteDB();
@@ -191,6 +213,8 @@ void DBMS::parseOpreate() {
 		this->operate = CREATE_TABLE;
 	else if (word == "deletetable")
 		this->operate = DELETE_TABLE;
+	else if (word == "use")
+		this->operate = USE_DATABASE;
 	else if (word == "createdb")
 		this->operate = CREATE_DATABASE;
 	else if (word == "deletedb")

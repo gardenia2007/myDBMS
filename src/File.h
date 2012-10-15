@@ -26,7 +26,7 @@ public:
 	virtual ~File();
 
 	// 外部接口，供DBMS调用
-	bool openDB(const char *);
+	bool useDB(const char *);
 	bool createDB(const char *);
 	bool deleteDB();
 
@@ -39,6 +39,7 @@ public:
 
 	bool read(char*);
 	bool write();
+
 
 private:
 	char databaseName[MAX_DATABASENAME_SIZE];

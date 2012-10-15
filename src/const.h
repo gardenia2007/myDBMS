@@ -32,6 +32,7 @@
 #define INSERT_TABLE	5
 #define CREATE_DATABASE	6
 #define DELETE_DATABASE	7
+#define USE_DATABASE	8
 
 #define BLOCK_SIZE		128
 

@@ -42,6 +42,7 @@ private:
 
 	void dispatchSql();
 
+	bool useDB();
 	bool createDB();
 	bool deleteDB();
 
@@ -53,7 +54,7 @@ private:
 
 	//parse opreate sql
 	bool parseCreateTable();
-	bool parseCreateDB();
+	bool parseDBName();
 	bool parseInsert();
 
 	//bool createDatabase();
