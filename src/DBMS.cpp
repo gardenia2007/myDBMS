@@ -18,7 +18,12 @@ DBMS::DBMS() {
 void DBMS::run() {
 	cout << "Welcome to myDBMS!!" << endl;
 	while (1) {
+		cout << ">";
 		getline(cin, this->sql);
+		if (this->sql == "exit") {
+			cout << "bye" << endl;
+			return;
+		}
 		this->parseOpreate();
 		this->dispatchSql();
 		cout << this->result << endl;
@@ -31,9 +36,32 @@ void DBMS::select() {
 	this->file->read(str);
 }
 
+bool DBMS::parseInsert() {
+	int i = 0;
+	Data *p = new Data;
+
+	if (getNextWord(tableName, DEFAULT_SIZE) == -1)
+		return false;
+	pos++; // skip '('
+
+	data = p; // head
+	p->next = p;
+	//TODO 没有检查返回值是-1的情况
+	while (!endOfSql()) {
+		p = p->next;
+		getNextWord(p->name, DEFAULT_SIZE);
+		p->num = i++; // 这里的num表示字段的序号
+		p->next = new Data;
+	}
+	delete p->next;
+	p->next = NULL;
+
+	return true;
+}
+
 bool DBMS::insertTable() {
-//	if(!this->parseInsert())
-	return false;
+	if (!this->parseInsert())
+		return false;
 //	this->file->insertTable();
 	return true;
 }
@@ -43,29 +71,21 @@ bool DBMS::parseCreateTable() {
 		return false;
 	this->pos++; // skip '('
 
-	//
+	// 生成链表
 	Data *p = new Data;
 	data = p; // head
 	p->next = p;
+	//TODO 没有检查返回值是-1的情况
 	while (!endOfSql()) {
 		p = p->next;
 		getNextWord(p->name, 32);
-		p->length = getNextWord(p->value, 32);
+		p->num = getNextWord(p->value, 32); // 如果是char，返回值是char的长度，否则为0
 		p->next = new Data;
 	}
 	delete p->next;
 	p->next = NULL;
 
 	return true;
-}
-bool DBMS::createTable() {
-	if (!parseCreateTable() || !file->createTable(tableName, data)){
-		result = "create table <" + string(this->tableName) + "> fail!";
-		return false;
-	}else{
-		result = "create table <" + string(this->tableName) + "> success!";
-		return true;
-	}
 }
 
 bool DBMS::deleteTable() {
@@ -78,11 +98,14 @@ bool DBMS::updateTable() {
 	return true;
 }
 
-bool DBMS::parseDBName() {
-	if (this->getNextWord(this->dbName, MAX_DBNAME_LEGTH) != -1)
-		return true;
-	else
+bool DBMS::createTable() {
+	if (!parseCreateTable() || !file->createTable(tableName, data)) {
+		result = "create table <" + string(this->tableName) + "> fail!";
 		return false;
+	} else {
+		result = "create table <" + string(this->tableName) + "> success!";
+		return true;
+	}
 }
 
 bool DBMS::useDB() {
@@ -106,13 +129,21 @@ bool DBMS::createDB() {
 }
 
 bool DBMS::deleteDB() {
+//TODO 没写删除数据库
 	if (!this->parseDBName()) {
 		result = "delete database <" + string(dbName) + "> fail!";
 		return false;
-	}else{
+	} else {
 		result = "delete database <" + string(dbName) + "> success!";
 		return false;
 	}
+}
+
+bool DBMS::parseDBName() {
+	if (this->getNextWord(this->dbName, MAX_DBNAME_LEGTH) != -1)
+		return true;
+	else
+		return false;
 }
 
 bool DBMS::endOfSql() {
@@ -142,6 +173,11 @@ int DBMS::getNextWord(char* word, int size = 32) {
 			pos++; // skip this null character
 			return 0;
 			break;
+
+		case '"': // 如果读到"，那么简单的忽略(对insert语句来说)
+			pos++;
+			break;
+
 		case '(': // 只有insert语句的char的后面会有'('
 			pos++;
 			j = 0;
@@ -155,12 +191,13 @@ int DBMS::getNextWord(char* word, int size = 32) {
 			numOfChar = atoi(tmpNumOfChar);
 			return numOfChar;
 			break;
+
 		default:
 			word[i] = sql[pos];
+			pos++;
+			i++;
 			break;
 		}
-		this->pos++;
-		i++;
 	}
 	return 0;
 }

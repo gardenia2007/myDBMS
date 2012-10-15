@@ -34,7 +34,8 @@ private:
 	unsigned int pos; //当前解析位置
 	char dbName[MAX_DBNAME_LEGTH];
 	char tableName[MAX_DBNAME_LEGTH];
-	Data *data;
+
+	Data *data; // 这是一个链表
 	int operate;
 
 

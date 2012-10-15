@@ -19,6 +19,8 @@
 #define MAX_SQL_LENGTH	128
 #define MAX_DBNAME_LEGTH	32
 
+#define DEFAULT_SIZE		32
+
 #define MAX_NAME_SIZE			32
 #define MAX_VALUE_SIZE			32
 #define MAX_CONDITION_SIZE		32
@@ -42,7 +44,7 @@ struct Data{
 	char value[MAX_VALUE_SIZE];
 	char opreate;
 	char value2[MAX_VALUE_SIZE];
-	int length;
+	int num;
 	Data * next;
 };
 
