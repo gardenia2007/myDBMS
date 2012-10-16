@@ -11,10 +11,10 @@
 // 数据库文件路径
 #define DATA_PATH		"/home/y/myDBMS/"
 // 数据库基础文件名
-#define DB_BASIC_FILE_NAME	"/db"
-#define DATA_FILE_NAME	"/data"
-#define MODEL_FILE_NAME	"/model"
-#define TMP_FILE_NAME	"/tmp"
+#define DB_BASIC_FILE_NAME	"db"
+#define DATA_FILE_NAME	"data"
+#define MODAL_FILE_NAME	"model"
+#define TMP_FILE_NAME	"tmp"
 
 #define MAX_SQL_LENGTH	128
 #define MAX_DBNAME_LEGTH	32
@@ -36,7 +36,7 @@
 #define DELETE_DATABASE	7
 #define USE_DATABASE	8
 
-#define BLOCK_SIZE		128
+#define BLOCK_SIZE		1024
 
 
 struct Data{

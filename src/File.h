@@ -45,6 +45,8 @@ private:
 	char databaseName[MAX_DATABASENAME_SIZE];
 	string dbName;
 	fstream file;
+	string dbPath, tablePath, dataPath, modalPath, tempPath;
+	char data[1024];
 
 
 	// 按块读写
