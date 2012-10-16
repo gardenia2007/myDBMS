@@ -10,6 +10,7 @@
 
 // 数据库文件路径
 #ifdef linux // linux下
+<<<<<<< HEAD
 	#define DATA_PATH		"/home/y/myDBMS/"
 	#define PATH_SPARATOR	"/"
 #elif WIN32 // windows下
