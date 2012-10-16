@@ -42,16 +42,19 @@ public:
 
 
 private:
-	char databaseName[MAX_DATABASENAME_SIZE];
+	char databaseName[MAX_DATABASE_NAME_SIZE];
 	string dbName;
 	fstream file;
 	string dbPath, tablePath, dataPath, modalPath, tempPath;
 	char data[1024];
 
+	bool initModal(string , Data *);
+	int parseFiledType(char *);
+	int getFiledSize(int, int);
 
 	// 按块读写
-	void readBlock(int block);
-	void writeBlock(int block);
+	void readBlock(int);
+	void writeBlock(int);
 
 };
 

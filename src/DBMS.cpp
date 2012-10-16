@@ -11,13 +11,13 @@ DBMS::DBMS() {
 	this->operate = SELECT_TABLE;
 	this->file = new File();
 	this->pos = 0;
-	result = "";
 	data = NULL;
 }
 
 void DBMS::run() {
 	cout << "Welcome to myDBMS!!" << endl;
 	while (1) {
+		result = "";
 		cout << ">";
 		getline(cin, this->sql);
 		if (this->sql == "exit") {
@@ -187,7 +187,8 @@ int DBMS::getNextWord(char* word, int size = 32) {
 				j++;
 			}
 			word[i] = '\0';
-			pos++;
+			pos++; // skip ')'
+			pos++; // if have ',' skip it
 			numOfChar = atoi(tmpNumOfChar);
 			return numOfChar;
 			break;

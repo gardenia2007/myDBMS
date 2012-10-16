@@ -8,6 +8,11 @@
 #ifndef CONST_H_
 #define CONST_H_
 
+
+#define TYPE_INT		1
+#define TYPE_CHAR		2
+#define TYPE_INVAILD	0
+
 // 数据库文件路径
 #ifdef linux // linux下
 	#define DATA_PATH		"/home/y/myDBMS/"
@@ -18,9 +23,8 @@
 #endif
 
 // 数据库基础文件名
-#define DB_BASIC_FILE_NAME	"db"
 #define DATA_FILE_NAME	"data"
-#define MODAL_FILE_NAME	"model"
+#define MODAL_FILE_NAME	"modal"
 #define TMP_FILE_NAME	"tmp"
 
 #define MAX_SQL_LENGTH	128
@@ -31,7 +35,9 @@
 #define MAX_NAME_SIZE			32
 #define MAX_VALUE_SIZE			32
 #define MAX_CONDITION_SIZE		32
-#define MAX_DATABASENAME_SIZE	32
+#define MAX_FIELD_NAME_SIZE		32
+#define MAX_TABLE_NAME_SIZE		32
+#define MAX_DATABASE_NAME_SIZE	32
 
 #define INVAILD_OPREATE	-1
 #define CREATE_TABLE	1

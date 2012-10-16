@@ -30,7 +30,10 @@ bool File::createTable(const char* tableName, Data * data) {
 
 		file.open((tablePath + DATA_FILE_NAME).data(), ios::out);
 		file.close();
+
 		file.open((tablePath + MODAL_FILE_NAME).data(), ios::out);
+
+		initModal(table, data);
 
 		return true;
 	} else { // 表已经存在
@@ -39,16 +42,57 @@ bool File::createTable(const char* tableName, Data * data) {
 	return true;
 }
 
+bool File::initModal(string tableName, Data * data) {
+	file.write(tableName.data(), MAX_TABLE_NAME_SIZE); // table name
+	int zero = 0;
+	file.write(reinterpret_cast<char *>(&zero), 8); // 表中所有属性的个数
+	file.write(reinterpret_cast<char *>(&zero), 24); // 凑够 32 byte
+	Data *p = data;
+	int type, size;
+	while (p != NULL) {
+		file.write(p->name, MAX_FIELD_NAME_SIZE); // 32 bytes
+		type = parseFiledType(p->value);
+		size = getFiledSize(type, p->num);
+		file.write(reinterpret_cast<char *>(&type), sizeof(int));// 4 bytes
+		file.write(reinterpret_cast<char *>(&size), sizeof(int));// 4 bytes
+		file.write(reinterpret_cast<char *>(&zero), 24);// 24 bytes
+		p = p->next;
+	}
+	file.close();
+	return true;
+}
+
+int File::parseFiledType(char *type) {
+	string str(type);
+	if (str == "int")
+		return TYPE_INT;
+	else if (str == "char")
+		return TYPE_CHAR;
+	else
+		return TYPE_INVAILD;
+}
+
+int File::getFiledSize(int type, int num){
+	switch(type){
+	case TYPE_INT:
+		return sizeof(int);
+	case TYPE_CHAR:
+		return num * sizeof(char);
+	default:
+		return 0;
+	}
+}
+
 bool File::createDB(const char* databaseName) {
 	this->dbName = string(databaseName);
 
-	dbPath = DATA_PATH + dbName +  PATH_SPARATOR;
+	dbPath = DATA_PATH + dbName + PATH_SPARATOR;
 //	cout << dbName << endl;
-	file.open((dbPath + DB_BASIC_FILE_NAME).data());
+	file.open((dbPath + MODAL_FILE_NAME).data());
 	if (file.fail()) { // 数据文件不存在，即数据库不存在
 		mkdir((dbPath).data(), 0777);
 
-		file.open((dbPath + DB_BASIC_FILE_NAME).data(), ios::out);
+		file.open((dbPath + MODAL_FILE_NAME).data(), ios::out);
 		file.close();
 
 		return true;
@@ -60,9 +104,10 @@ bool File::createDB(const char* databaseName) {
 bool File::useDB(const char* databaseName) {
 	this->dbName.assign(databaseName);
 //	cout << "file db name is" << this->dbName << endl;
-	dbPath =(DATA_PATH + dbName + "/");
-	file.open((dbPath + MODAL_FILE_NAME).data(), ios::in | ios::out | ios::binary);
-	if (file.fail()){ // 数据文件不存在，即数据库不存在
+	dbPath = (DATA_PATH + dbName + "/");
+	file.open((dbPath + MODAL_FILE_NAME).data(),
+			ios::in | ios::out | ios::binary);
+	if (file.fail()) { // 数据文件不存在，即数据库不存在
 		cout << "file db name is" << this->dbName << endl;
 		return false;
 	} else
