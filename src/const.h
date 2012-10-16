@@ -9,7 +9,14 @@
 #define CONST_H_
 
 // 数据库文件路径
-#define DATA_PATH		"/home/y/myDBMS/"
+#ifdef linux // linux下
+	#define DATA_PATH		"/home/y/myDBMS/"
+	#define PATH_SPARATOR	"/"
+#elif WIN32 // windows下
+	#define DATA_PATH		"D:\\myDBMS\\"
+	#define PATH_SPARATOR	"\\"
+#endif
+
 // 数据库基础文件名
 #define DB_BASIC_FILE_NAME	"db"
 #define DATA_FILE_NAME	"data"

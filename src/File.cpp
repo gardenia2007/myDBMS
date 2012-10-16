@@ -23,7 +23,7 @@ bool File::read(char* str) {
 
 bool File::createTable(const char* tableName, Data * data) {
 	string table(tableName);
-	tablePath = dbPath + table + "/";
+	tablePath = dbPath + table + PATH_SPARATOR;
 	file.open((tablePath + DATA_FILE_NAME).data());
 	if (file.fail()) { // 数据文件不存在，即table不存在
 		mkdir((tablePath).data(), 0777);
@@ -42,12 +42,13 @@ bool File::createTable(const char* tableName, Data * data) {
 bool File::createDB(const char* databaseName) {
 	this->dbName = string(databaseName);
 
-	cout << dbName << endl;
-	file.open((DATA_PATH + dbName + DB_BASIC_FILE_NAME).data());
+	dbPath = DATA_PATH + dbName +  PATH_SPARATOR;
+//	cout << dbName << endl;
+	file.open((dbPath + DB_BASIC_FILE_NAME).data());
 	if (file.fail()) { // 数据文件不存在，即数据库不存在
-		mkdir((DATA_PATH + dbName).data(), 0777);
+		mkdir((dbPath).data(), 0777);
 
-		file.open((DATA_PATH + dbName + DB_BASIC_FILE_NAME).data(), ios::out);
+		file.open((dbPath + DB_BASIC_FILE_NAME).data(), ios::out);
 		file.close();
 
 		return true;
