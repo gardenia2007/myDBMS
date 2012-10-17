@@ -16,7 +16,11 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#ifdef linux
 #include <sys/stat.h>
+#elif WIN32
+#include <direct.h>
+#endif
 
 using namespace std;
 
@@ -47,14 +51,21 @@ private:
 	fstream file;
 	string dbPath, tablePath, dataPath, modalPath, tempPath;
 	char data[1024];
+        Data *property;
+
+        int ChartoInt(char temp[4]);
+        
+	// 按块读写
+	void readBlock(int block);
+	void writeBlock(int block);
+        //解析model
+        void praseModel();
+        //解析数据
+        void praseData();
 
 	bool initModal(string , Data *);
 	int parseFiledType(char *);
 	int getFiledSize(int, int);
-
-	// 按块读写
-	void readBlock(int);
-	void writeBlock(int);
 
 };
 

@@ -26,7 +26,11 @@ bool File::createTable(const char* tableName, Data * data) {
 	tablePath = dbPath + table + PATH_SPARATOR;
 	file.open((tablePath + DATA_FILE_NAME).data());
 	if (file.fail()) { // 数据文件不存在，即table不存在
+#ifdef linux
 		mkdir((tablePath).data(), 0777);
+#elif WIN32
+                mkdir((tablePath).data());
+#endif
 
 		file.open((tablePath + DATA_FILE_NAME).data(), ios::out);
 		file.close();
@@ -101,7 +105,11 @@ bool File::createDB(const char* databaseName) {
 //	cout << dbName << endl;
 	file.open((dbPath + MODAL_FILE_NAME).data());
 	if (file.fail()) { // 数据文件不存在，即数据库不存在
+#ifdef linux
 		mkdir((dbPath).data(), 0777);
+#elif WIN32
+                mkdir((dbPath).data());
+#endif
 
 		file.open((dbPath + MODAL_FILE_NAME).data(), ios::out);
 		file.close();
@@ -124,3 +132,64 @@ bool File::useDB(const char* databaseName) {
 	} else
 		return true;
 }
+
+int File::ChartoInt(char temp[4]) {
+    int *result;
+    result = reinterpret_cast<int *> (temp);
+    return *result;
+}
+
+void File::readBlock(int block) {
+    fstream rdtable;
+    rdtable.open((this->tablePath).data(), ios::in | ios::binary);
+    rdtable.seekg(block * BLOCK_SIZE);
+    rdtable.read(this->data, BLOCK_SIZE);
+    rdtable.close();
+}
+
+void File::writeBlock(int block) {
+    fstream wrtable;
+    wrtable.open((this->tablePath).data(), ios::out | ios::binary);
+    wrtable.seekg(BLOCK_SIZE * block);
+    wrtable.write(this->data, BLOCK_SIZE);
+    wrtable.close();
+}
+
+void File::praseModel() {
+    fstream rdmodel;
+    rdmodel.open((this->modalPath).data(), ios::in | ios::binary);
+    rdmodel.seekg(32);
+    char temp[4];
+    //读属性总数
+    rdmodel.read(temp, 4);
+    int model_num = ChartoInt(temp);
+    Data *p = new Data;
+    this->property = p;
+    p->next = p;
+    int datamodel;
+    for (int i = 0; i < model_num; i++) {
+        //读属性名
+        rdmodel.seekg(64 + 32 * i);
+        rdmodel.read(p->name, 32);
+        rdmodel.read(temp, 4);
+        datamodel = ChartoInt(temp);
+        if (datamodel == TYPE_CHAR) {
+            p->value[0] = 'c';
+            p->value[1] = 'h';
+            p->value[2] = 'a';
+            p->value[3] = 'r';
+            rdmodel.read(temp, 4);
+            p->num = ChartoInt(temp);
+        } else {
+            p->value[0] = 'i';
+            p->value[1] = 'n';
+            p->value[2] = 't';
+        }
+    }
+    rdmodel.close();
+}
+
+void File::praseData() {
+
+}
+
