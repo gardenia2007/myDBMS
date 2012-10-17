@@ -9,7 +9,7 @@
 
 DBMS::DBMS() {
 	this->operate = SELECT_TABLE;
-	this->file = new File();
+	this->db = new DB();
 	this->pos = 0;
 	data = NULL;
 }
@@ -33,7 +33,7 @@ void DBMS::run() {
 void DBMS::select() {
 	cout << "i am select" << endl;
 	char str[12] = "reading";
-	this->file->read(str);
+	this->db->read(str);
 }
 
 bool DBMS::parseInsert() {
@@ -60,7 +60,7 @@ bool DBMS::parseInsert() {
 }
 
 bool DBMS::insertTable() {
-	if (!parseInsert() || !file->insertTable(tableName, data)) {
+	if (!parseInsert() || !db->insertTable(tableName, data)) {
 		result = "insert table <" + string(this->tableName) + "> fail!";
 		return false;
 	} else {
@@ -102,7 +102,7 @@ bool DBMS::updateTable() {
 }
 
 bool DBMS::createTable() {
-	if (!parseCreateTable() || !file->createTable(tableName, data)) {
+	if (!parseCreateTable() || !db->createTable(tableName, data)) {
 		result = "create table <" + string(this->tableName) + "> fail!";
 		return false;
 	} else {
@@ -112,7 +112,7 @@ bool DBMS::createTable() {
 }
 
 bool DBMS::useDB() {
-	if (!this->parseDBName() || !this->file->useDB(this->dbName)) {
+	if (!this->parseDBName() || !this->db->useDB(this->dbName)) {
 		result = "database <" + string(dbName) + "> not found!";
 		return false;
 	} else {
@@ -122,7 +122,7 @@ bool DBMS::useDB() {
 }
 
 bool DBMS::createDB() {
-	if (!this->parseDBName() || !this->file->createDB(this->dbName)) {
+	if (!this->parseDBName() || !this->db->createDB(this->dbName)) {
 		result = "create database <" + string(dbName) + "> fail!";
 		return false;
 	} else {

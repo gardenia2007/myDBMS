@@ -16,7 +16,7 @@
 #include <iostream>
 #include <string>
 #include <stdlib.h>
-#include "File.h"
+#include "DB.h"
 
 using namespace std;
 
@@ -30,7 +30,7 @@ public:
 private:
 	string sql, result;
 
-	File *file;
+	DB *db;
 	unsigned int pos; //当前解析位置
 	char dbName[MAX_DBNAME_LEGTH];
 	char tableName[MAX_DBNAME_LEGTH];

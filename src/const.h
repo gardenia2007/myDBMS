@@ -15,7 +15,7 @@
 
 // 数据库文件路径
 #ifdef linux // linux下
-	#define DATA_PATH		"/home/y/wordspace/myDBMS/db/"
+	#define DATA_PATH		"/home/y/workspace/myDBMS/db/"
 	#define PATH_SPARATOR	"/"
 #elif WIN32 // windows下
 	#define DATA_PATH		"D:\\myDBMS\\"
@@ -24,7 +24,7 @@
 
 // 数据库基础文件名
 #define DATA_FILE_NAME	"data"
-#define MODAL_FILE_NAME	"modal"
+#define MODEL_FILE_NAME	"model"
 #define TMP_FILE_NAME	"tmp"
 
 #define MAX_SQL_LENGTH	128

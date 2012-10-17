@@ -1,76 +1,52 @@
 /*
- * File.h
- *	文件操作类,维护DBMS的数据文件
- *	Hash索引
- *  Created on: 2012-10-14
+ * Block.h
+ *
+ * 封装文件块操作
+ *
+ *  Created on: 2012-10-17
  *      Author: y
  */
 
-#ifndef FILE_H_
-#define FILE_H_
-
-#ifndef CONST_H_
+#ifndef BLOCK_H_
+#define BLOCK_H_
 #include "const.h"
-#endif
 
-#include "Index.h"
-#include "Block.h"
-#include <iostream>
 #include <fstream>
 #include <string>
-#ifdef linux
-#include <sys/stat.h>
-#elif WIN32
-#include <direct.h>
-#endif
 
 using namespace std;
 
+//#include <string>
+//#include "File.h"
+
 class File {
 public:
-	File();
+	File(); //
 	virtual ~File();
 
-	// 外部接口，供DBMS调用
-	bool useDB(const char *);
-	bool createDB(const char *);
-	bool deleteDB();
+	bool setTablePath(string); //
+	bool setBlockAddr(block_addr); // 设置起始块地址,if(block_addr == -1)，表示在非索引域的搜索，处理所有元组
 
-	//basic table opreation
-	bool createTable(const char *, Data *);
-	bool insertTable(const char *, Data *);
-	bool updateTable();
-	bool deleteTable();
-
-	bool select(Data *);
-
-	bool read(char*);
-	bool write();
-
+	tuple * getTuple(); // 获取下一个元组，没有了就返回false
+	bool writeTuple(Data *); // 写入一个元组
 
 private:
-	char databaseName[MAX_DATABASE_NAME_SIZE];
-	string dbName;
-	fstream file;
-	string dbPath, tablePath, dataPath, modalPath, tempPath;
-	char data[1024];
-	Modal *property;
+//	File file;
+	char block[1024];
+	string tablePath;
+	block_addr addr;
+	bool searchAll;
 
-        int ChartoInt(char *);
-        
-	// 按块读写
-	void readBlock(int);
-	void writeBlock(int);
-        //解析model
-        void praseModel();
-        //解析数据
-        void praseData();
+	bool hasRemainSpace();
 
+	void getNextBlockAddr();
+	void readNextBlock();
+	void getTupleSize();
+	void readData(char *);
+	void writeData(const char *);
 
-	bool initModal(string , Data *);
-	int parseFiledType(char *);
-	int getFiledSize(int, int);
-
+	void readBlock(block_addr);
+	void writeBlock(block_addr);
 };
 
-#endif /* FILE_H_ */
+#endif /* BLOCK_H_ */
