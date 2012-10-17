@@ -5,8 +5,11 @@ Debug/
 Release/
 .settings/
 core
+build
+Makefile
+nbproject/
+.dep.inc
 db
-
 
 # Compiled Object files
 *.slo
