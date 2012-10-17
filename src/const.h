@@ -15,7 +15,7 @@
 
 // 数据库文件路径
 #ifdef linux // linux下
-	#define DATA_PATH		"/home/y/myDBMS/"
+	#define DATA_PATH		"/home/y/wordspace/myDBMS/db/"
 	#define PATH_SPARATOR	"/"
 #elif WIN32 // windows下
 	#define DATA_PATH		"D:\\myDBMS\\"

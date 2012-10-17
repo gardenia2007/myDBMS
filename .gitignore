@@ -5,6 +5,7 @@ Debug/
 Release/
 .settings/
 core
+db
 
 
 # Compiled Object files
