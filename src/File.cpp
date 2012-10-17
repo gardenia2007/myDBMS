@@ -45,10 +45,11 @@ bool File::createTable(const char* tableName, Data * data) {
 bool File::initModal(string tableName, Data * data) {
 	file.write(tableName.data(), MAX_TABLE_NAME_SIZE); // table name
 	int zero = 0;
-	file.write(reinterpret_cast<char *>(&zero), 8); // 表中所有属性的个数
+	file.write(reinterpret_cast<char *>(&zero), 4); // 一个元组所占size(bit)
+	file.write(reinterpret_cast<char *>(&zero), 4); // 表中所有属性的个数
 	file.write(reinterpret_cast<char *>(&zero), 24); // 凑够 32 byte
 	Data *p = data;
-	int type, size;
+	int type, size, filedSize = 0, fileNum = 0;
 	while (p != NULL) {
 		file.write(p->name, MAX_FIELD_NAME_SIZE); // 32 bytes
 		type = parseFiledType(p->value);
@@ -56,8 +57,18 @@ bool File::initModal(string tableName, Data * data) {
 		file.write(reinterpret_cast<char *>(&type), sizeof(int));// 4 bytes
 		file.write(reinterpret_cast<char *>(&size), sizeof(int));// 4 bytes
 		file.write(reinterpret_cast<char *>(&zero), 24);// 24 bytes
+
+		fileNum++;
+		filedSize++; // 删除标识位
+		filedSize+=size;
+
 		p = p->next;
 	}
+
+	file.seekp(MAX_TABLE_NAME_SIZE, ios::beg);
+	file.write(reinterpret_cast<char *>(&filedSize), sizeof(int));// 一个元组的大小(bit)
+	file.write(reinterpret_cast<char *>(&fileNum), sizeof(int));// 属性个数
+
 	file.close();
 	return true;
 }
