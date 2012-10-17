@@ -9,6 +9,7 @@
 
 #ifndef BLOCK_H_
 #define BLOCK_H_
+#include "const.h"
 
 class Block {
 public:

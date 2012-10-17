@@ -53,11 +53,11 @@ private:
 	char data[1024];
         Data *property;
 
-        int ChartoInt(char temp[4]);
+        int ChartoInt(char *);
         
 	// 按块读写
-	void readBlock(int block);
-	void writeBlock(int block);
+	void readBlock(int);
+	void writeBlock(int);
         //解析model
         void praseModel();
         //解析数据

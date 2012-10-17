@@ -9,6 +9,7 @@
 
 #ifndef INDEX_H_
 #define INDEX_H_
+#include "const.h"
 
 class Index {
 public:
