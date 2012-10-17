@@ -60,10 +60,13 @@ bool DBMS::parseInsert() {
 }
 
 bool DBMS::insertTable() {
-	if (!this->parseInsert())
+	if (!parseInsert() || !file->insertTable(tableName, data)) {
+		result = "insert table <" + string(this->tableName) + "> fail!";
 		return false;
-//	this->file->insertTable();
-	return true;
+	} else {
+		result = "insert table <" + string(this->tableName) + "> success!";
+		return true;
+	}
 }
 
 bool DBMS::parseCreateTable() {

@@ -1,7 +1,7 @@
 /*
  * File.h
  *	文件操作类,维护DBMS的数据文件
- *	堆文件 + B+树索引
+ *	Hash索引
  *  Created on: 2012-10-14
  *      Author: y
  */
@@ -36,7 +36,7 @@ public:
 
 	//basic table opreation
 	bool createTable(const char *, Data *);
-	bool insertTable();
+	bool insertTable(const char *, Data *);
 	bool updateTable();
 	bool deleteTable();
 
