@@ -15,12 +15,12 @@ DBMS::DBMS() {
 }
 
 void DBMS::run() {
-	cout << "Welcome to myDBMS!!" << endl;
+	cout << "Welcome to myDBMS!\nPress 'q' to exit" << endl;
 	while (1) {
 		result = "";
 		cout << ">";
 		getline(cin, this->sql);
-		if (this->sql == "exit") {
+		if (sql == "q") {
 			cout << "bye" << endl;
 			return;
 		}
