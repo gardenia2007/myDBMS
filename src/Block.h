@@ -11,7 +11,8 @@
 #define BLOCK_H_
 #include "const.h"
 
-#include <string>
+//#include <string>
+//#include "File.h"
 
 class Block {
 public:
@@ -26,7 +27,7 @@ public:
 
 
 private:
-	File file;
+//	File file;
 	char d[1024];
 
 	void readBlock(block_addr);

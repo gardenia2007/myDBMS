@@ -16,6 +16,10 @@ File::~File() {
 //	file.close();
 }
 
+bool File::insertTable(const char *, Data *){
+    
+}
+
 bool File::select(Data * d){
 	Index i = Index();
 	block_addr addr = i.getBlock(d);

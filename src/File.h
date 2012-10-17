@@ -13,6 +13,8 @@
 #include "const.h"
 #endif
 
+#include "Index.h"
+#include "Block.h"
 #include <iostream>
 #include <fstream>
 #include <string>

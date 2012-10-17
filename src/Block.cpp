@@ -14,20 +14,19 @@ Block::Block() {
 
 }
 
-tuple * Block::getTuple(){
-	char * str = "aksdjf";
-
-	tuple tmp = new tuple[3];
-
-	tmp[0] = str;
-	tmp[1] = str;
-	tmp[2] = str + 1;
-
-
-	return tmp;
-}
-
 Block::~Block() {
 	// TODO Auto-generated destructor stub
+}
+
+tuple * Block::getTuple(){
+
+}
+
+bool Block::setDBTable(){
+    
+}
+
+bool Block::setBlockAddr(block_addr){
+    
 }
 
