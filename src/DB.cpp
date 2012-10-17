@@ -8,15 +8,28 @@
 #include "DB.h"
 
 DB::DB() {
-
+	f = File();
+	model = NULL;
 }
 
 DB::~DB() {
 //	file.close();
 }
 
-bool DB::insertTable(const char *, Data *){
-    
+void DB::setTablePath(const char *tableName){
+	string table(tableName);
+	tablePath = dbPath + table + PATH_SPARATOR;
+}
+
+bool DB::insertTable(const char *tableName, Data *data){
+	this->setTablePath(tableName);
+	f.setTablePath(tablePath);
+	f.model = this->model;
+
+	if(f.writeTuple(data))
+		return true;
+	else
+		return false;
 }
 
 bool DB::select(Data * d){
@@ -29,7 +42,7 @@ bool DB::select(Data * d){
 
 	tuple *p;
 	do{
-		p = b.getTuple();
+//		p = b.getTuple();
 
 		tuple x = p[0];
 		int xx = this->ChartoInt(x);
@@ -43,14 +56,8 @@ bool DB::select(Data * d){
 	return true;
 }
 
-bool DB::read(char* str) {
-	cout << str << endl;
-	return true;
-}
-
 bool DB::createTable(const char* tableName, Data * data) {
-	string table(tableName);
-	tablePath = dbPath + table + PATH_SPARATOR;
+	setTablePath(tableName);
 	file.open((tablePath + DATA_FILE_NAME).data());
 	if (file.fail()) { // 数据文件不存在，即table不存在
 #ifdef linux
@@ -64,7 +71,7 @@ bool DB::createTable(const char* tableName, Data * data) {
 
 		file.open((tablePath + MODEL_FILE_NAME).data(), ios::out);
 
-		initModal(table, data);
+		initModal(tableName, data);
 
 		return true;
 	} else { // 表已经存在
@@ -73,8 +80,8 @@ bool DB::createTable(const char* tableName, Data * data) {
 	return true;
 }
 
-bool DB::initModal(string tableName, Data * data) {
-	file.write(tableName.data(), MAX_TABLE_NAME_SIZE); // table name
+bool DB::initModal(const char *tableName, Data * data) {
+	file.write(tableName, MAX_TABLE_NAME_SIZE); // table name
 	int zero = 0;
 	file.write(reinterpret_cast<char *>(&zero), 4); // 一个元组所占size(bit)
 	file.write(reinterpret_cast<char *>(&zero), 4); // 表中所有属性的个数
@@ -175,8 +182,10 @@ void DB::praseModel() {
     //读属性总数
     rdmodel.read(temp, 4);
     int model_num = ChartoInt(temp);
-    Modal *p = new Modal[model_num];
-    this->property = p;
+
+    Model *p = new Model[model_num];
+
+    this->model = p;
 
     for (int i = 0; i < model_num; i++) {
         //读属性名

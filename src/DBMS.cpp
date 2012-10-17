@@ -32,8 +32,6 @@ void DBMS::run() {
 
 void DBMS::select() {
 	cout << "i am select" << endl;
-	char str[12] = "reading";
-	this->db->read(str);
 }
 
 bool DBMS::parseInsert() {

@@ -6,11 +6,9 @@
  *      Author: y
  */
 
-#ifndef FILE_H_
-#define FILE_H_
+#ifndef DB_H_
+#define DB_H_
 
-#ifndef CONST_H_
-#endif
 #include "const.h"
 
 #include "Index.h"
@@ -19,6 +17,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+
 #ifdef linux
 #include <sys/stat.h>
 #elif WIN32
@@ -45,8 +44,6 @@ public:
 
 	bool select(Data *);
 
-	bool read(char*);
-	bool write();
 
 
 private:
@@ -54,20 +51,20 @@ private:
 	string dbName;
 	fstream file;
 	string dbPath, tablePath;
-	Modal *property;
+	Model *model;
+
+	File f;
+
+	void setTablePath(const char *);
 
 	int ChartoInt(char *);
-        
-	// 按块读写
-	void readBlock(int);
-	void writeBlock(int);
 
 	//解析model
 	void praseModel();
 	//解析数据
 	void praseData();
 
-	bool initModal(string , Data *);
+	bool initModal(const char *, Data *);
 	int parseFiledType(char *);
 	int getFiledSize(int, int);
 

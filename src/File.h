@@ -7,22 +7,28 @@
  *      Author: y
  */
 
-#ifndef BLOCK_H_
-#define BLOCK_H_
+#ifndef FILE_H_
+#define FILE_H_
 #include "const.h"
+
+#include "Block.h"
 
 #include <fstream>
 #include <string>
+#include <stdlib.h>
+#include "sys/stat.h"
+
 
 using namespace std;
 
-//#include <string>
-//#include "File.h"
+//class Block;
 
 class File {
 public:
 	File(); //
 	virtual ~File();
+
+	Model * model;
 
 	bool setTablePath(string); //
 	bool setBlockAddr(block_addr); // 设置起始块地址,if(block_addr == -1)，表示在非索引域的搜索，处理所有元组
@@ -31,22 +37,23 @@ public:
 	bool writeTuple(Data *); // 写入一个元组
 
 private:
-//	File file;
-	char block[1024];
 	string tablePath;
-	block_addr addr;
-	bool searchAll;
+	block_addr addr, previous;
 
-	bool hasRemainSpace();
+	Block block;
 
-	void getNextBlockAddr();
+	bool searchAll, newFile;
+
+
 	void readNextBlock();
-	void getTupleSize();
-	void readData(char *);
-	void writeData(const char *);
 
-	void readBlock(block_addr);
-	void writeBlock(block_addr);
+	bool newBlock();
+
+	bool updatePreviousBlock(block_addr); // 更新上一个Block的next_block值
+
+	int getBlockNum(); // how many in current file?
+	bool readBlock(Block *); // read a block from file to this->block
+	bool writeBlock(Block *);// write a this->block to file
 };
 
 #endif /* BLOCK_H_ */
