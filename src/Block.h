@@ -11,14 +11,26 @@
 #define BLOCK_H_
 #include "const.h"
 
+#include <string>
+
 class Block {
 public:
-	Block();
+	Block(); //
 	virtual ~Block();
 
+	bool setDBTable(); // which db ,table?
+	bool setBlockAddr(block_addr); // 设置起始块地址,if(block_addr == -1)，表示在非索引域的搜索，处理所有元组
+
+	tuple * getTuple(); // 获取下一个元组，没有了就返回false
+	bool writeTuple(Data *); // 写入一个元组
+
+
 private:
-	void readBlock(int);
-	void writeBlock(int);
+	File file;
+	char d[1024];
+
+	void readBlock(block_addr);
+	void writeBlock(block_addr);
 };
 
 #endif /* BLOCK_H_ */

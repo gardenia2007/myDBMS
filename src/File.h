@@ -40,6 +40,7 @@ public:
 	bool updateTable();
 	bool deleteTable();
 
+	bool select(Data *);
 
 	bool read(char*);
 	bool write();
@@ -51,7 +52,7 @@ private:
 	fstream file;
 	string dbPath, tablePath, dataPath, modalPath, tempPath;
 	char data[1024];
-        Data *property;
+	Modal *property;
 
         int ChartoInt(char *);
         
@@ -62,6 +63,7 @@ private:
         void praseModel();
         //解析数据
         void praseData();
+
 
 	bool initModal(string , Data *);
 	int parseFiledType(char *);
