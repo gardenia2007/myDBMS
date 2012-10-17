@@ -51,6 +51,7 @@
 
 #define BLOCK_SIZE		1024
 
+typedef char * tuple;
 
 struct Data{
 	char name[MAX_NAME_SIZE];
@@ -60,5 +61,14 @@ struct Data{
 	int num;
 	Data * next;
 };
+
+struct Modal{
+	char name[MAX_NAME_SIZE];
+	int type;
+	int size;
+	int no;
+};
+
+typedef int block_addr;
 
 #endif /* CONST_H_ */

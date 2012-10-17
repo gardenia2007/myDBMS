@@ -16,6 +16,30 @@ File::~File() {
 //	file.close();
 }
 
+bool File::select(Data * d){
+	Index i = Index();
+	block_addr addr = i.getBlock(d);
+
+	Block b = Block();
+	b.setDBTable();
+	b.setBlockAddr(addr);
+
+	tuple *p;
+	do{
+		p = b.getTuple();
+
+		tuple x = p[0];
+		int xx = this->ChartoInt(x);
+		tuple str = p[1];
+
+		cout << xx << str << endl;
+
+
+	}while(p != NULL);
+
+	return true;
+}
+
 bool File::read(char* str) {
 	cout << str << endl;
 	return true;
@@ -133,7 +157,7 @@ bool File::useDB(const char* databaseName) {
 		return true;
 }
 
-int File::ChartoInt(char temp[4]) {
+int File::ChartoInt(char *temp) {
     int *result;
     result = reinterpret_cast<int *> (temp);
     return *result;
@@ -163,29 +187,20 @@ void File::praseModel() {
     //读属性总数
     rdmodel.read(temp, 4);
     int model_num = ChartoInt(temp);
-    Data *p = new Data;
+    Modal *p = new Modal[model_num];
     this->property = p;
-    p->next = p;
-    int datamodel;
+
     for (int i = 0; i < model_num; i++) {
         //读属性名
         rdmodel.seekg(64 + 32 * i);
         rdmodel.read(p->name, 32);
         rdmodel.read(temp, 4);
-        datamodel = ChartoInt(temp);
-        if (datamodel == TYPE_CHAR) {
-            p->value[0] = 'c';
-            p->value[1] = 'h';
-            p->value[2] = 'a';
-            p->value[3] = 'r';
-            rdmodel.read(temp, 4);
-            p->num = ChartoInt(temp);
-        } else {
-            p->value[0] = 'i';
-            p->value[1] = 'n';
-            p->value[2] = 't';
-        }
+        p->type =  ChartoInt(temp);
+		rdmodel.read(temp, 4);
+        p->size =  ChartoInt(temp);
+        p->no = i;
     }
+
     rdmodel.close();
 }
 
