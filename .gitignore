@@ -9,6 +9,7 @@ build
 Makefile
 nbproject/
 .dep.inc
+db
 
 # Compiled Object files
 *.slo
