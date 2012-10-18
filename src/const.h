@@ -18,7 +18,7 @@
 #define DATA_PATH		"/home/y/workspace/myDBMS/db/"
 #define PATH_SPARATOR	"/"
 #elif WIN32 // windows下
-#define DATA_PATH		"D:\\myDBMS\\db\\"
+#define DATA_PATH		"D:\\myDBMS\\db"
 #define PATH_SPARATOR	"\\"
 #endif
 
