@@ -15,11 +15,11 @@
 
 // 数据库文件路径
 #ifdef linux // linux下
-	#define DATA_PATH		"/home/y/workspace/myDBMS/db/"
-	#define PATH_SPARATOR	"/"
+#define DATA_PATH		"/home/y/workspace/myDBMS/db/"
+#define PATH_SPARATOR	"/"
 #elif WIN32 // windows下
-	#define DATA_PATH		"D:\\myDBMS\\"
-	#define PATH_SPARATOR	"\\"
+#define DATA_PATH		"D:\\myDBMS\\"
+#define PATH_SPARATOR	"\\"
 #endif
 
 // 数据库基础文件名
@@ -59,13 +59,13 @@
 
 typedef char * tuple;
 
-struct Data{
-	char name[MAX_NAME_SIZE];
-	char value[MAX_VALUE_SIZE];
-	char opreate;
-	char value2[MAX_VALUE_SIZE];
-	int num;
-	Data * next;
+struct Data {
+    char name[MAX_NAME_SIZE];
+    char value[MAX_VALUE_SIZE];
+    char opreate;
+    char value2[MAX_VALUE_SIZE];
+    int num;
+    Data * next;
 };
 
 struct Model{
