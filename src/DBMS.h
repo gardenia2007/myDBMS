@@ -34,8 +34,11 @@ private:
 	unsigned int pos; //当前解析位置
 	char dbName[MAX_DBNAME_LEGTH];
 	char tableName[MAX_DBNAME_LEGTH];
+        string tableNames[MAX_DBNAME_LEGTH];
 
 	Data *data; // 这是一个链表
+        Data *tables;
+        Data *qualification;
 	int operate;
 
 
@@ -48,15 +51,17 @@ private:
 	bool deleteDB();
 
 	//basic table opreation
-	bool createTable();
-	bool insertTable();
-	bool updateTable();
-	bool deleteTable();
+	void createTable();
+	void insertTable();
+	void updateTable();
+	void deleteTable();
 
 	//parse opreate sql
 	bool parseCreateTable();
 	bool parseDBName();
 	bool parseInsert();
+        bool praseSelect(Data *,string );
+        bool praseSelConnditon();
 
 	//bool createDatabase();
 	//bool deleteDatabase();
