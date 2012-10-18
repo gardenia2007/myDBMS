@@ -15,6 +15,7 @@
 
 #include <iostream>
 #include <string>
+#include <cstring>
 #include <stdlib.h>
 #include "DB.h"
 
@@ -33,10 +34,10 @@ private:
 	DB *db;
 	unsigned int pos; //当前解析位置
 	char dbName[MAX_DBNAME_LEGTH];
-	char tableName[MAX_DBNAME_LEGTH];
-        string tableNames[MAX_DBNAME_LEGTH];
+	char tableName[MAX_TABLE_NAME_SIZE];
 
 	Data *data; // 这是一个链表
+        Data *attribute;
         Data *tables;
         Data *qualification;
 	int operate;
@@ -58,10 +59,14 @@ private:
 
 	//parse opreate sql
 	bool parseCreateTable();
+        bool parseInsertTable();
+        bool parseUpdateTable();
+        bool parseUpdateChange(Data *&,string);
+        bool parseDeleteTable();
 	bool parseDBName();
 	bool parseInsert();
-        bool praseSelect(Data *,string );
-        bool praseSelConnditon();
+        bool praseSelect(Data *&,string );
+        bool praseConnditon(Data *&);
 
 	//bool createDatabase();
 	//bool deleteDatabase();

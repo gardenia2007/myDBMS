@@ -68,19 +68,11 @@ struct Data {
     Data * next;
 };
 
-<<<<<<< HEAD
-struct Modal {
+struct Model {
     char name[MAX_NAME_SIZE];
     int type;
     int size;
     int no;
-=======
-struct Model{
-	char name[MAX_NAME_SIZE];
-	int type;
-	int size;
-	int no;
->>>>>>> 7316c5c6b2007f46e35b18518cdb5476a6609877
 };
 
 typedef int block_addr;

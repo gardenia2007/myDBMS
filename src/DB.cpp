@@ -32,24 +32,17 @@ bool DB::insertTable(const char *tableName, Data *data){
 		return false;
 }
 
-bool DB::select(Data * d){
+bool DB::select(Data *property, Data *tables, Data *qulification){
 	Index i = Index();
-	block_addr addr = i.getBlock(d);
+	block_addr addr = i.getBlock(tables);
 
 	File b = File();
-	b.setTablePath(tablePath);
+	b.setTablePath(tables->name);
 	b.setBlockAddr(addr);
 
 	tuple *p;
 	do{
-//		p = b.getTuple();
-
-		tuple x = p[0];
-		int xx = this->ChartoInt(x);
-		tuple str = p[1];
-
-		cout << xx << str << endl;
-
+            
 
 	}while(p != NULL);
 
@@ -78,6 +71,14 @@ bool DB::createTable(const char* tableName, Data * data) {
 		return false;
 	}
 	return true;
+}
+
+bool DB::deleteTable(){
+    
+}
+
+bool DB::updateTable(){
+    
 }
 
 bool DB::initModal(const char *tableName, Data * data) {

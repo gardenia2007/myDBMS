@@ -42,7 +42,7 @@ public:
 	bool updateTable();
 	bool deleteTable();
 
-	bool select(Data *);
+	bool select(Data *,Data *,Data *);
 
 
 

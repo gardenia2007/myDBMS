@@ -30,35 +30,39 @@ void DBMS::run() {
     }
 }
 
-bool DBMS::praseSelect(Data *q, string seg) {
+bool DBMS::praseSelect(Data *&q, string seg) {
     Data *p = new Data;
     q = p;
-    p->next = NULL;
+    p->next = p;
+    char tmp[MAX_NAME_SIZE];
     string str = "";
-    int judge = this->getNextWord(p->name, DEFAULT_SIZE);
+    int judge;
     while (!endOfSql()) {
+        judge = this->getNextWord(tmp, DEFAULT_SIZE);
         if (judge == -1) {
             return false;
         } else {
-            if (str.append(p->name) == seg) {
+            if (str.append(tmp) == seg) {
+                delete p->next;
+                p->next = NULL;
                 return true;
             } else {
-                str = "";
-                p->next = new Data;
                 p = p->next;
-                judge = this->getNextWord(p->name, DEFAULT_SIZE);
+                str = "";
+                strcpy(p->name, tmp);
+                p->next = new Data;
             }
         }
     }
 }
 
-bool DBMS::praseSelConnditon() {
+bool DBMS::praseConnditon(Data *&q) {
     Data *p = new Data;
-    this->qualification = p;
-    p->next = NULL;
+    q = p;
+    p->next = p;
     int judge;
-    this->getNextWord(p->name, DEFAULT_SIZE);
     while (!endOfSql()) {
+        p = p->next;
         judge = this->getNextWord(p->name, DEFAULT_SIZE);
         if (judge != -1)
             judge = this->getNextWord(p->value, DEFAULT_SIZE);
@@ -68,23 +72,24 @@ bool DBMS::praseSelConnditon() {
             return false;
         else {
             p->next = new Data;
-            p = p->next;
         }
     }
+    delete p->next;
+    p->next = NULL;
     return true;
 }
 
 void DBMS::select() {
     bool judge = true;
-    judge = this->praseSelect(data, "from");
+    judge = this->praseSelect(this->attribute, "from");
     if (judge == true)
-        judge = this->praseSelect(tables, "where");
+        judge = this->praseSelect(this->tables, "where");
     if (judge == true)
-        judge = this->praseSelConnditon();
-    if(judge == true){
-        
-    }else{
-        
+        judge = this->praseConnditon(this->qualification);
+    if (judge == true) {
+        db->select(this->data, this->tables, this->qualification);
+    } else {
+        result = "inquire failed!";
     }
 }
 
@@ -114,10 +119,10 @@ bool DBMS::parseInsert() {
 void DBMS::insertTable() {
     if (!parseInsert() || !db->insertTable(tableName, data)) {
         result = "insert table <" + string(this->tableName) + "> fail!";
-//        return false;
+        //        return false;
     } else {
         result = "insert table <" + string(this->tableName) + "> success!";
-//        return true;
+        //        return true;
     }
 }
 
@@ -143,23 +148,80 @@ bool DBMS::parseCreateTable() {
     return true;
 }
 
+bool DBMS::parseDeleteTable() {
+    if (this->getNextWord(this->tableName, DEFAULT_SIZE) == -1)
+        return false;
+    else
+        return true;
+}
+
 void DBMS::deleteTable() {
+    if (!this->parseDeleteTable() || !db->deleteTable()) {
+        result = "delete table <" + string(this->tableName) + "> fail!";
+        //        return false;
+    } else {
+        result = "delete table <" + string(this->tableName) + "> success!";
+        //        return true;
+    }
+}
 
-//    return true;
+bool DBMS::parseUpdateTable() {
+    bool judge = true;
+    judge = this->praseSelect(this->tables, "set");
+    if(judge == true){
+        strcpy(this->tableName, this->tables->name);
+        judge = this->parseUpdateChange(this->data, "where");
+    }
+    if(judge == true)
+        judge = this->praseConnditon(this->qualification);
+    return judge;
+}
 
+bool DBMS::parseUpdateChange(Data *&q, string seg){
+    Data *p = new Data;
+    q = p;
+    p->next = p;
+    char tmp[MAX_NAME_SIZE];
+    string str = "";
+    int judge;
+    while (!endOfSql()) {
+        judge = this->getNextWord(tmp, DEFAULT_SIZE);
+        if (judge == -1) {
+            return false;
+        } else {
+            if (str.append(tmp) == seg) {
+                delete p->next;
+                p->next = NULL;
+                return true;
+            } else {
+                p = p->next;
+                str = "";
+                strcpy(p->name, tmp);
+                this->getNextWord(p->value, DEFAULT_SIZE);
+                this->getNextWord(p->value2, DEFAULT_SIZE);
+                p->next = new Data;
+            }
+        }
+    }
 }
 
 void DBMS::updateTable() {
-//    return true;
+    if (!this->parseUpdateTable() || !db->updateTable()) {
+        result = "update table <" + string(this->tableName) + "> fail!";
+        //        return false;
+    } else {
+        result = "update table <" + string(this->tableName) + "> success!";
+        //        return true;
+    }
 }
 
 void DBMS::createTable() {
     if (!parseCreateTable() || !db->createTable(tableName, data)) {
         result = "create table <" + string(this->tableName) + "> fail!";
-//        return false;
+        //        return false;
     } else {
         result = "create table <" + string(this->tableName) + "> success!";
-//        return true;
+        //        return true;
     }
 }
 
@@ -252,7 +314,13 @@ int DBMS::getNextWord(char* word, int size = 32) {
             case '>':
             case '<':
                 word[i] = sql[pos];
-                pos++;
+                pos += 2;
+                return 0;
+                break;
+                
+            case '*':
+                word[i] = sql[pos];
+                pos+=2;
                 return 0;
                 break;
 
