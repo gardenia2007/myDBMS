@@ -24,7 +24,7 @@ bool DB::select(Data *property, Data *tables, Data *qulification) {
     block_addr addr = i.getBlock(tables);
 
 
-    const char * tableName = "b";
+    const char * tableName = "x";
 
     preparePathModelAddr(tableName, addr);
     if (!f.prepareFetchTuple()) // data文件为空
@@ -39,9 +39,9 @@ bool DB::select(Data *property, Data *tables, Data *qulification) {
 
         tuple x = p[0];
         int xx = this->ChartoInt(x);
-        char *str = p[1];
+//        char *str = p[1];
 
-        cout << numOfResult << ":" << xx << " " << str << endl;
+        cout << numOfResult << ":" << xx << " " << endl;
         deleteNewAttribute(p, numOfAttribute);
     }
 
