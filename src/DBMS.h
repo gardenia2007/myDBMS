@@ -77,8 +77,6 @@ private:
 	//char * getFirstWord();
 	int getNextWord(char* ,int);
 	bool endOfSql();
-
-
 };
 
 #endif /* DBMS_H_ */

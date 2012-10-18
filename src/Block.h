@@ -12,23 +12,26 @@
 
 class Block {
 public:
-	Block();
-	virtual ~Block();
+    Block();
+    virtual ~Block();
 
-	char data[1024];
-	int offset;
+    char data[BLOCK_SIZE];
+    int offset;
 
-	void autoOffset(); // 写纪录时自动将偏移设置为block的可写入处
+    void autoOffset(); // 写纪录时自动将偏移设置为block的可写入处
 
-	int getRemainSpace();
-	block_addr getNextBlockAddr();
-	int getTupleSize(); // each tuple size
+    bool eob(); // END OF BLOCK?
+    bool eot(); // END OF TUPLE?
 
-	void readChar(char *, int size); // read char from this->block, not file
-	int readInt(); // read a int num from this->block, not file
+    int getRemainSpace();
+    block_addr getNextBlockAddr();
+    int getTupleSize(); // each tuple size from this->data(FILE)
 
-	void writeChar(const char *, int size); //write to this->block, not file
-	void writeInt(int *); //write to this->block, not file
+    void readChar(char *, int size); // read char from this->block, not file
+    int readInt(); // read a int num from this->block, not file
+
+    void writeChar(const char *, int size); //write to this->block, not file
+    void writeInt(int *); //write to this->block, not file
 
 };
 

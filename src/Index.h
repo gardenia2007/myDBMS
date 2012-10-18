@@ -13,10 +13,10 @@
 
 class Index {
 public:
-	Index();
-	virtual ~Index();
+    Index();
+    virtual ~Index();
 
-	int getBlock(Data *); // 根据条件返回block指针（即块号）
+    int getBlock(Data *); // 根据条件返回block指针（即块号）
 
 
 };
