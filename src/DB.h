@@ -42,7 +42,7 @@ public:
 	bool updateTable();
 	bool deleteTable();
 
-	bool select(Data *);
+	int select(Data *);
 
 
 
@@ -55,9 +55,13 @@ private:
 
 	File f;
 
+	void preparePathModelAddr(const char *, int); // 根据表名设置表文件路径，解析model，设置欲读块的起始地址
+
 	void setTablePath(const char *);
 
 	int ChartoInt(char *);
+
+	void deleteNewAttribute(tuple *t, int);
 
 	//解析model
 	void praseModel();

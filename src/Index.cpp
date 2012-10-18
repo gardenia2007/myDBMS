@@ -13,7 +13,7 @@ Index::Index() {
 }
 
 int Index::getBlock(Data *data){
-	return -1; // Not Found
+	return 0; // Not Found
 }
 
 Index::~Index() {

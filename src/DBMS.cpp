@@ -31,6 +31,7 @@ void DBMS::run() {
 }
 
 void DBMS::select() {
+	db->select(NULL); // test
 	cout << "i am select" << endl;
 }
 
@@ -156,6 +157,7 @@ bool DBMS::endOfSql() {
 
 int DBMS::getNextWord(char* word, int size = 32) {
 	int i = 0, numOfChar, j;
+	bool readSim = false;
 	char tmpNumOfChar[32];
 	while (1) {
 		if (endOfSql()) { // sql结束
@@ -166,6 +168,16 @@ int DBMS::getNextWord(char* word, int size = 32) {
 		}
 		switch (sql[pos]) {
 		case ' ': //first 执行此函数前要去掉空格
+			if (readSim) { // 如果在insert语句的字符串中出现，则不能忽略了
+				word[i] = sql[pos];
+				pos++;
+				i++;
+				break;
+			} else {
+				word[i] = '\0';
+				pos++; // skip this null character
+				return 0;
+			}
 		case ';':
 		case ':':
 		case ')':
@@ -175,11 +187,12 @@ int DBMS::getNextWord(char* word, int size = 32) {
 			return 0;
 			break;
 
-		case '"': // 如果读到"，那么简单的忽略(对insert语句来说)
+		case '"': // 如果读到"，那么忽略，并设置标志(对insert语句来说)
 			pos++;
+			readSim = !readSim; // 初始为false
 			break;
 
-		case '(': // 只有insert语句的char的后面会有'('
+		case '(': // 只有create table语句的char的后面会有'('
 			pos++;
 			j = 0;
 			while (sql[pos] != ')') { // 读取括号中得数字

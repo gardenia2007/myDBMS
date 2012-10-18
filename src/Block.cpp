@@ -46,17 +46,40 @@ int Block::readInt() {
 }
 
 int Block::getRemainSpace() {
+	int tmp = offset;
 	offset = BLOCK_HEAD_REMAIN_OFFSET;
-	return readInt();
+	int r = readInt();
+	offset = tmp;
+	return r;
 }
 
 int Block::getTupleSize() {
+	int tmp = offset;
 	offset = BLOCK_HEAD_LENGTH_OFFSET;
-	return readInt();
+	int r = readInt();
+	offset = tmp;
+	return r;
 }
 
 block_addr Block::getNextBlockAddr() {
+	int tmp = offset;
 	offset = BLOCK_HEAD_NEXT_OFFSET;
-	return readInt();
+	int r = readInt();
+	offset = tmp;
+	return r;
+}
+
+bool Block::eob(){
+	if(BLOCK_SIZE - offset < getTupleSize())
+		return true;
+	else
+		return false;
+}
+
+bool Block::eot(){
+	if((BLOCK_SIZE - offset) / getTupleSize() < getRemainSpace())
+		return true;
+	else
+		return false;
 }
 

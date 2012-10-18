@@ -15,14 +15,17 @@ public:
 	Block();
 	virtual ~Block();
 
-	char data[1024];
+	char data[BLOCK_SIZE];
 	int offset;
 
 	void autoOffset(); // 写纪录时自动将偏移设置为block的可写入处
 
+	bool eob(); // END OF BLOCK?
+	bool eot(); // END OF TUPLE?
+
 	int getRemainSpace();
 	block_addr getNextBlockAddr();
-	int getTupleSize(); // each tuple size
+	int getTupleSize(); // each tuple size from this->data(FILE)
 
 	void readChar(char *, int size); // read char from this->block, not file
 	int readInt(); // read a int num from this->block, not file
