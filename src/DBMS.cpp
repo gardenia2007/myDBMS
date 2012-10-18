@@ -75,6 +75,7 @@ bool DBMS::praseSelConnditon() {
 }
 
 void DBMS::select() {
+<<<<<<< HEAD
     bool judge = true;
     judge = this->praseSelect(data, "from");
     if (judge == true)
@@ -86,6 +87,9 @@ void DBMS::select() {
     }else{
         
     }
+=======
+	cout << "i am select" << endl;
+>>>>>>> 7316c5c6b2007f46e35b18518cdb5476a6609877
 }
 
 bool DBMS::parseInsert() {

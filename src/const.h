@@ -49,6 +49,12 @@
 #define DELETE_DATABASE	7
 #define USE_DATABASE	8
 
+
+#define BLOCK_HEAD_REMAIN_OFFSET	0
+#define BLOCK_HEAD_LENGTH_OFFSET	4
+#define BLOCK_HEAD_NEXT_OFFSET		8
+#define BLOCK_HEAD_SIZE	4 + 4 + 4
+
 #define BLOCK_SIZE		1024
 
 typedef char * tuple;
@@ -62,11 +68,19 @@ struct Data {
     Data * next;
 };
 
+<<<<<<< HEAD
 struct Modal {
     char name[MAX_NAME_SIZE];
     int type;
     int size;
     int no;
+=======
+struct Model{
+	char name[MAX_NAME_SIZE];
+	int type;
+	int size;
+	int no;
+>>>>>>> 7316c5c6b2007f46e35b18518cdb5476a6609877
 };
 
 typedef int block_addr;
