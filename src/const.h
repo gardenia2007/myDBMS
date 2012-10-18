@@ -53,7 +53,7 @@
 #define BLOCK_HEAD_REMAIN_OFFSET	0
 #define BLOCK_HEAD_LENGTH_OFFSET	4
 #define BLOCK_HEAD_NEXT_OFFSET		8
-#define BLOCK_HEAD_SIZE	4 + 4 + 4
+#define BLOCK_HEAD_SIZE				12 // 4 + 4 + 4
 
 #define BLOCK_SIZE		1024
 
