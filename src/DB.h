@@ -38,13 +38,13 @@ public:
 	// 外部接口，供DBMS调用
 	bool useDB(const char *);
 	bool createDB(const char *);
-	bool deleteDB();
+	bool deleteDB(const char *);
 
 	//basic table opreation
 	bool createTable(const char *, Data *);
 	bool insertTable(const char *, Data *);
-	bool updateTable();
-	bool deleteTable();
+	bool updateTable(Data *, Data *, Data *);
+	bool deleteTable(const char *);
 
 	bool select(Data *, Data *, Data *);
 
@@ -57,6 +57,8 @@ public:
 	void showPart(int, tuple *&, Data *&);
 	int allToTmp(int, tuple *&, const char *);
 	int partToTmp(int, tuple *&, Data *&, const char *);
+
+	bool updatedata();
 
 private:
 	char databaseName[MAX_DATABASE_NAME_SIZE];

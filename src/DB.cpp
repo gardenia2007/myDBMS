@@ -40,26 +40,6 @@ bool DB::select(Data *property, Data *tables, Data *qulification) {
 				tableName);
 	}
 
-	/*	while (f.fetchTuple(p)) {
-	 tuple x;
-	 result = true;
-	 Data *q = qulification;
-	 while (q != NULL) {
-	 result = this->tupleJudge(q, x, p, numOfAttribute);
-	 if (result == true)
-	 q = q->next;
-	 else {
-	 break;
-	 }
-	 }
-	 if (result == true) {
-	 numOfResult++;
-	 this->transform(numOfAttribute, p);
-	 this->selecttmp = true;
-	 result = this->insertTmp(tableName, this->data);
-	 }
-	 deleteNewAttribute(p, numOfAttribute);
-	 }*/
 	if (numOfResult > 0) {
 		this->selecttmp = true;
 		result = this->showSelect(tableName, numOfAttribute, property);
@@ -195,7 +175,6 @@ bool DB::showSelect(const char * tableName, int numOfAttribute,
 	else {
 		tuple *p = new tuple[numOfAttribute];
 		int numOfResult = 0;
-//		Data *q = property;
 		while (tmpf.fetchTuple(p)) {
 			numOfResult++;
 			cout << numOfResult << ":";
@@ -204,24 +183,6 @@ bool DB::showSelect(const char * tableName, int numOfAttribute,
 			} else {
 				this->showPart(numOfAttribute, p, property);
 			}
-			/*while (q != NULL) {
-			 for (int i = 0; i < numOfAttribute; i++) {
-			 if (strcmp(q->name, model[i].name) == 0) {
-			 switch (model[i].type) {
-			 case TYPE_INT:
-			 cout << this->ChartoInt(p[i]) << " ";
-			 break;
-			 case TYPE_CHAR:
-			 cout << p[i] << " ";
-			 break;
-			 default:
-			 break;
-			 }
-			 break;
-			 }
-			 }
-			 q = q->next;
-			 }*/
 			cout << endl;
 			deleteNewAttribute(p, numOfAttribute);
 		}
@@ -285,6 +246,7 @@ bool DB::insertTable(const char *tableName, Data * data) {
 }
 
 bool DB::createTable(const char* tableName, Data * data) {
+	this->selecttmp = false;
 	setTablePath(tableName);
 	file.open((tablePath + DATA_FILE_NAME).data());
 	if (file.fail()) { // 数据文件不存在，即table不存在
@@ -308,12 +270,56 @@ bool DB::createTable(const char* tableName, Data * data) {
 	return true;
 }
 
-bool DB::deleteTable() {
-
+bool DB::deleteDB(const char * databaseName) {
+	this->dbName = string(databaseName);
+	dbPath = DATA_PATH + dbName + PATH_SPARATOR;
+	this->deletePath(this->dbPath);
+	return true;
 }
 
-bool DB::updateTable() {
+bool DB::deleteTable(const char * tableName) {
+	setTablePath(tableName);
+	this->deletePath(this->tablePath);
+	return true;
+}
 
+bool DB::updateTable(Data *property, Data *tables, Data *qulification) {
+	Index i = Index();
+	block_addr addr = i.getBlock(tables);
+
+	const char * tableName = tables->name;
+
+	preparePathModelAddr(tableName, addr);
+	if (!f.prepareFetchTuple()) // data文件为空
+		return 0;
+
+	int numOfAttribute = f.getAttributeNumFromModel(model);
+	tuple *p = new tuple[numOfAttribute];
+	bool result;
+
+	while (f.fetchTuple(p)) {
+		tuple x;
+		result = true;
+		Data *q = qulification;
+		while (q != NULL) {
+			result = this->tupleJudge(q, x, p, numOfAttribute);
+			if (result == true)
+				q = q->next;
+			else {
+				break;
+			}
+		}
+		if (result == true) {
+			result = this->updatedata();
+		}
+		deleteNewAttribute(p, numOfAttribute);
+	}
+	return result;
+}
+
+bool DB::updatedata(){
+
+	return true;
 }
 
 bool DB::createDB(const char* databaseName) {
@@ -481,3 +487,4 @@ void DB::preparePathModelAddr(const char *tableName, block_addr addr) {
 bool DB::deletePath(string path) {
 	system(("rm -f -r " + path).data());
 }
+
