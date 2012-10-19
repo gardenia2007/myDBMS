@@ -50,11 +50,10 @@ bool DB::select(Data *property, Data *tables, Data *qulification) {
 			this->transform(numOfAttribute, p);
 			this->selecttmp = true;
 			result = this->insertTmp(tableName, this->data);
-			numOfResult++;
 		}
 		deleteNewAttribute(p, numOfAttribute);
 	}
-	if (result == true) {
+	if (numOfResult > 0) {
 		this->selecttmp = true;
 		result = this->showSelect(tableName, numOfAttribute, property);
 	}
@@ -70,7 +69,7 @@ void DB::transform(int numOfAttribute, tuple *&p) {
 		switch (this->model[i].type) {
 		case TYPE_INT:
 			char tmp[DEFAULT_SIZE];
-			itoa(this->ChartoInt(p[i]), tmp, 10);
+			sprintf(tmp, "%d", this->ChartoInt(p[i]));
 			strcpy(q->name, tmp);
 			break;
 		case TYPE_CHAR:
@@ -105,6 +104,7 @@ bool DB::tupleJudge(Data*&q, tuple&x, tuple*&p, int numOfAttribute) {
 			}
 		}
 	}
+	return true;
 }
 
 bool DB::compareInt(Data *&q, tuple & x) {
@@ -141,7 +141,8 @@ bool DB::insertTmp(const char *tableName, Data *data) {
 		return false;
 }
 
-bool DB::showSelect(const char * tableName, int numOfAttribute, Data *&property) {
+bool DB::showSelect(const char * tableName, int numOfAttribute,
+		Data *&property) {
 	this->preparePathModelAddr(tableName, 0);
 	if (!tmpf.prepareFetchTuple())
 		return false;
@@ -151,10 +152,10 @@ bool DB::showSelect(const char * tableName, int numOfAttribute, Data *&property)
 		Data *q = property;
 		while (tmpf.fetchTuple(p)) {
 			numOfResult++;
+			cout << numOfResult << ":";
 			while (q != NULL) {
 				for (int i = 0; i < numOfAttribute; i++) {
 					if (strcmp(q->name, model[i].name) == 0) {
-						cout << numOfResult << ":";
 						switch (model[i].type) {
 						case TYPE_INT:
 							cout << this->ChartoInt(p[i]) << " ";
@@ -168,13 +169,14 @@ bool DB::showSelect(const char * tableName, int numOfAttribute, Data *&property)
 						break;
 					}
 				}
-				cout << endl;
 				q = q->next;
 			}
+			cout << endl;
 			deleteNewAttribute(p, numOfAttribute);
 		}
-		return true;
 	}
+	deletePath(tmpPath);
+	return true;
 }
 
 void DB::deleteNewAttribute(tuple *t, int num) {
@@ -199,7 +201,7 @@ bool DB::createTable(const char* tableName, Data * data) {
 	file.open((tablePath + DATA_FILE_NAME).data());
 	if (file.fail()) { // 数据文件不存在，即table不存在
 #ifdef linux
-	mkdir((tablePath).data(), 0777);
+		mkdir((tablePath).data(), 0777);
 #elif WIN32
 		mkdir((tablePath).data());
 #endif
@@ -234,7 +236,7 @@ bool DB::createDB(const char* databaseName) {
 	file.open((dbPath + MODEL_FILE_NAME).data());
 	if (file.fail()) { // 数据文件不存在，即数据库不存在
 #ifdef linux
-	mkdir((dbPath).data(), 0777);
+		mkdir((dbPath).data(), 0777);
 #elif WIN32
 		mkdir((dbPath).data());
 #endif
@@ -386,4 +388,8 @@ void DB::preparePathModelAddr(const char *tableName, block_addr addr) {
 
 		tmpf.setBlockAddr(addr);
 	}
+}
+
+bool DB::deletePath(string path){
+	system(("rm -f -r " + path).data());
 }

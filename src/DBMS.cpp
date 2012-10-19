@@ -324,6 +324,7 @@ int DBMS::getNextWord(char* word, int size = 32) {
 		case '=':
 		case '>':
 		case '<':
+		case '1':
 			word[i] = sql[pos];
 			word[i + 1] = '\0';
 			pos += 2;

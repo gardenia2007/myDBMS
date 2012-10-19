@@ -18,6 +18,9 @@
 #include <fstream>
 #include <string>
 #include <cstring>
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
 
 #ifdef linux
 #include <sys/stat.h>
@@ -78,6 +81,8 @@ private:
 	bool initModal(const char *, Data *);
 	int parseFiledType(char *);
 	int getFiledSize(int, int);
+
+	bool deletePath(string path);
 
 };
 
