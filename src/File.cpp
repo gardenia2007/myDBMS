@@ -24,7 +24,6 @@ File::~File() {
 
 /********** PUBLIC FUNCTION *************/
 
-
 // fetch元组前设置offset为第一条元组的位置
 bool File::prepareFetchTuple() {
 	if (getBlockNum() == 0) {
@@ -39,19 +38,17 @@ bool File::prepareFetchTuple() {
 bool File::fetchTuple(tuple *t) {
 	char *tmp;
 
-	// TODO maybe have a bug
-	if (block.eot()) { // 如果读到最后一个元组
-		return false;
-	} else if (block.eob()) {
+	if (block.eob()) {
 		if (!readNextBlock()) // 如果没有下一块了,返回false
 			return false;
 		block.offset = BLOCK_HEAD_SIZE;
-	} else {
-		for (int i = 0; model[i].no != -1; i++) {
-			tmp = new char[model[i].size];
-			block.readChar(tmp, model[i].size);
-			t[i] = tmp;
-		}
+	} else if (block.eot()) { // 如果读到最后一个元组
+		return false;
+	}
+	for (int i = 0; model[i].no != -1; i++) {
+		tmp = new char[model[i].size];
+		block.readChar(tmp, model[i].size);
+		t[i] = tmp;
 	}
 	return true;
 }
@@ -186,7 +183,7 @@ bool File::updatePreviousBlock(block_addr addr) {
 	tmp.offset = BLOCK_HEAD_NEXT_OFFSET;
 	tmp.writeInt(&addr);
 
-	writeBlock(&tmp, currentAddr);
+	writeBlock(&tmp, previousAddr);
 	return true;
 }
 
