@@ -15,6 +15,7 @@ File::File() {
 
 	searchAll = false;
 	newFile = false;
+	writeEmptyBlockFlag = false;
 }
 
 File::~File() {
@@ -23,18 +24,8 @@ File::~File() {
 
 /********** PUBLIC FUNCTION *************/
 
-bool File::readTuple(tuple *t) {
-	int numOfAttr = getAttributeNumFromModel(model);
-	if (currentAddr != -1) {
-		if (block.eob()) {
-			readNextBlock();
-		}
-		return true;
-	} else {
-		return false;
-	}
-}
 
+// fetch元组前设置offset为第一条元组的位置
 bool File::prepareFetchTuple() {
 	if (getBlockNum() == 0) {
 		return false;
@@ -65,34 +56,46 @@ bool File::fetchTuple(tuple *t) {
 	return true;
 }
 
+bool File::writeEmptyBlock(block_addr addr, int num) {
+	writeEmptyBlockFlag = !writeEmptyBlockFlag; // true;
+
+	for (int i = 0; i < num; i++) {
+		currentAddr = newBlock();
+		writeBlock(&block, currentAddr);
+	}
+
+	writeEmptyBlockFlag = !writeEmptyBlockFlag; // false;
+	return true;
+}
+
 bool File::setTablePath(string path) {
 	this->tablePath = path;
 	return true;
 }
 
 bool File::setBlockAddr(block_addr addr) {
-	if (addr >= 0) {
-		this->searchAll = false;
-		this->currentAddr = addr;
-	} else {
+	if (addr == NOT_INDEX_FEILD) {
 		// set the flag
 		this->searchAll = true;
 		this->currentAddr = 0;
+	} else {
+		this->searchAll = false;
+		this->currentAddr = addr;
 	}
 	this->previousAddr = -1;
 	return true;
 }
 
 bool File::writeTuple(Data * d) {
-	if (getBlockNum() == 0) {
-		newBlock();
+	if (getBlockNum() == 0) { // 如果文件为空
+		currentAddr = newBlock();
 	} else {
 		readBlock(&block, currentAddr);
 	}
 
-	if (block.getRemainSpace() <= 0) { // 如果当前块没有足够空间`
+	if (block.getRemainSpace() <= 0) { // 如果当前块没有足够空间
 		if (!readNextBlock()) // nextBlock读取失败，即没有下一个块
-			newBlock();
+			currentAddr = newBlock();
 	} else {
 		block.autoOffset();
 		Data *p = d;
@@ -125,7 +128,11 @@ bool File::writeTuple(Data * d) {
 bool File::readNextBlock() {
 	previousAddr = currentAddr;
 
-	currentAddr = block.getNextBlockAddr();
+	if (searchAll) // if not index field
+		currentAddr++;
+	else
+		currentAddr = block.getNextBlockAddr();
+
 	if (currentAddr != -1) {
 		readBlock(&block, currentAddr);
 		return true;
@@ -134,8 +141,8 @@ bool File::readNextBlock() {
 	}
 }
 
-bool File::newBlock() {
-	currentAddr = getBlockNum();
+int File::newBlock() {
+	block_addr newAddr = getBlockNum();
 	int tupleSize = getTupleSizeFromModel(model), noNextBlock = -1; //TODO 需要从model中获取tupleSize
 	int numOfBlock = (BLOCK_SIZE - BLOCK_HEAD_SIZE) / tupleSize;
 	block.offset = 0;
@@ -143,8 +150,8 @@ bool File::newBlock() {
 	block.writeInt(&tupleSize);
 	block.writeInt(&noNextBlock);
 	// 更新上一个块的next_block
-	updatePreviousBlock(currentAddr);
-	return true;
+	updatePreviousBlock(newAddr);
+	return newAddr;
 }
 
 int File::getAttributeNumFromModel(Model *m) {
@@ -158,19 +165,19 @@ int File::getTupleSizeFromModel(Model *m) {
 	int i;
 	for (i = 0; m[i].no != -1; i++)
 		;
-	return m[i - 1].size;
+	return m[i].size;
 }
 
-void File::updateRemainSpace(int space) {
+void File::updateRemainSpace(int spaceIncreasement) {
 	int current = block.getRemainSpace();
-	current += space; // update
+	current += spaceIncreasement; // update
 	block.offset = BLOCK_HEAD_REMAIN_OFFSET;
 	block.writeInt(&current);
 }
 
 bool File::updatePreviousBlock(block_addr addr) {
 
-	if (newFile || previousAddr == -1)
+	if (newFile || previousAddr == -1 || writeEmptyBlockFlag)
 		return true;
 
 	Block tmp = Block();
@@ -199,13 +206,15 @@ bool File::readBlock(Block *block, block_addr addr) {
 
 bool File::writeBlock(Block *block, block_addr addr) {
 	fstream wrtable;
-	wrtable.open((tablePath + DATA_FILE_NAME).data(), ios::out | ios::binary);
-	wrtable.seekg(BLOCK_SIZE * addr);
+	wrtable.open((tablePath + DATA_FILE_NAME).data(),
+			ios::in | ios::out | ios::binary); //
+	wrtable.seekp(BLOCK_SIZE * addr, ios::beg);
 	wrtable.write(block->data, BLOCK_SIZE);
 	wrtable.close();
 	return true;
 }
 
+//  得到当前数据表的块总数
 int File::getBlockNum() {
 	ifstream f;
 	f.open((tablePath + DATA_FILE_NAME).data(), ios::binary);
@@ -216,6 +225,6 @@ int File::getBlockNum() {
 		return 0;
 	} else {
 		f.seekg(0, ios::end);
-		return f.tellg();
+		return (f.tellg() / BLOCK_SIZE);
 	}
 }

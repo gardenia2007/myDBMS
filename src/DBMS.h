@@ -5,7 +5,6 @@
  *      Author: y
  */
 
-
 #ifndef DBMS_H_
 #define DBMS_H_
 
@@ -20,7 +19,6 @@
 #include "DB.h"
 
 using namespace std;
-
 
 class DBMS {
 public:
@@ -37,11 +35,10 @@ private:
 	char tableName[MAX_TABLE_NAME_SIZE];
 
 	Data *data; // 这是一个链表
-        Data *attribute;
-        Data *tables;
-        Data *qualification;
+	Data *attribute;
+	Data *tables;
+	Data *qualification;
 	int operate;
-
 
 	void parseOpreate();
 
@@ -59,23 +56,22 @@ private:
 
 	//parse opreate sql
 	bool parseCreateTable();
-        bool parseInsertTable();
-        bool parseUpdateTable();
-        bool parseUpdateChange(Data *&,string);
-        bool parseDeleteTable();
+	bool parseInsertTable();
+	bool parseUpdateTable();
+	bool parseUpdateChange(Data *&, string);
+	bool parseDeleteTable();
 	bool parseDBName();
 	bool parseInsert();
-        bool praseSelect(Data *&,string );
-        bool praseConnditon(Data *&);
+	bool praseSelect(Data *&, string);
+	bool praseConnditon(Data *&);
 
 	//bool createDatabase();
 	//bool deleteDatabase();
 
 	void select();
 
-
 	//char * getFirstWord();
-	int getNextWord(char* ,int);
+	int getNextWord(char*, int);
 	bool endOfSql();
 };
 

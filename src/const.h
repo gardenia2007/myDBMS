@@ -13,6 +13,8 @@
 #define TYPE_CHAR		2
 #define TYPE_INVAILD	0
 
+#define NOT_INDEX_FEILD -1
+
 // 数据库文件路径
 #ifdef linux // linux下
 #define DATA_PATH		"/home/y/workspace/myDBMS/db/"

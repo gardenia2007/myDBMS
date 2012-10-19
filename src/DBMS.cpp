@@ -12,6 +12,8 @@ DBMS::DBMS() {
 	this->db = new DB();
 	this->pos = 0;
 	data = NULL;
+	attribute = NULL;
+	tables = NULL;
 }
 
 void DBMS::run() {
@@ -81,14 +83,9 @@ bool DBMS::praseConnditon(Data *&q) {
 }
 
 void DBMS::select() {
-	bool judge = true;
-	judge = this->praseSelect(this->attribute, "from");
-	if (judge == true)
-		judge = this->praseSelect(this->tables, "where");
-	if (judge == true)
-		judge = this->praseConnditon(this->qualification);
-	if (judge == true) {
-		db->select(this->data, this->tables, this->qualification);
+	if (praseSelect(attribute, "from") && praseSelect(tables, "where")
+			&& praseConnditon(qualification)) {
+		db->select(attribute, tables, qualification);
 	} else {
 		result = "inquire failed!";
 	}
@@ -328,12 +325,14 @@ int DBMS::getNextWord(char* word, int size = 32) {
 		case '>':
 		case '<':
 			word[i] = sql[pos];
+			word[i + 1] = '\0';
 			pos += 2;
 			return 0;
 			break;
 
 		case '*':
 			word[i] = sql[pos];
+			word[i + 1] = '\0';
 			pos += 2;
 			return 0;
 			break;
