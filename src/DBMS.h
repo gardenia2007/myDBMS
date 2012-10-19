@@ -16,6 +16,9 @@
 #include <string>
 #include <cstring>
 #include <stdlib.h>
+#include <stdio.h>
+#include <sys/time.h>
+#include <time.h>
 #include "DB.h"
 
 using namespace std;
@@ -33,6 +36,9 @@ private:
 	unsigned int pos; //当前解析位置
 	char dbName[MAX_DBNAME_LEGTH];
 	char tableName[MAX_TABLE_NAME_SIZE];
+
+	timeval *begTime, *endTime;
+	char * runTime;
 
 	Data *data; // 这是一个链表
 	Data *attribute;
@@ -73,6 +79,10 @@ private:
 	//char * getFirstWord();
 	int getNextWord(char*, int);
 	bool endOfSql();
+
+	void begin();
+	void end();
+
 };
 
 #endif /* DBMS_H_ */
