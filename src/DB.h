@@ -17,6 +17,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <cstring>
 
 #ifdef linux
 #include <sys/stat.h>
@@ -42,18 +43,24 @@ public:
 	bool updateTable();
 	bool deleteTable();
 
-	bool select(Data *,Data *,Data *);
+	bool select(Data *, Data *, Data *);
 
-
+	bool compareInt(Data *&, tuple &);
+	bool tupleJudge(Data *&, tuple &, tuple *&, int);
+	void transform(int, tuple *&);
+	bool insertTmp(const char *, Data *);
+	bool showSelect(const char *, int, Data *&);
 
 private:
 	char databaseName[MAX_DATABASE_NAME_SIZE];
 	string dbName;
 	fstream file;
-	string dbPath, tablePath;
+	string dbPath, tablePath, tmpPath;
 	Model *model;
+	Data *data;
+	bool selecttmp;
 
-	File f;
+	File f, tmpf;
 
 	void preparePathModelAddr(const char *, int); // 根据表名设置表文件路径，解析model，设置欲读块的起始地址
 
