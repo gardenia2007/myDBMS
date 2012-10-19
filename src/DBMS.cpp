@@ -17,10 +17,10 @@ DBMS::DBMS() {
 }
 
 void DBMS::run() {
-	cout << "Welcome to myDBMS!\nPress 'q' to exit" << endl;
+	cout << "Welcome to myDBMS!\nEnter 'q' to exit" << endl;
 	while (1) {
 		result = "";
-		cout << ">";
+		cout << ">" << endl;
 		getline(cin, this->sql);
 		if (sql == "q") {
 			cout << "bye" << endl;
@@ -324,7 +324,6 @@ int DBMS::getNextWord(char* word, int size = 32) {
 		case '=':
 		case '>':
 		case '<':
-		case '1':
 			word[i] = sql[pos];
 			word[i + 1] = '\0';
 			pos += 2;

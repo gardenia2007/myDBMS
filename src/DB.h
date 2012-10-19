@@ -53,6 +53,10 @@ public:
 	void transform(int, tuple *&);
 	bool insertTmp(const char *, Data *);
 	bool showSelect(const char *, int, Data *&);
+	void showAll(int, tuple *&);
+	void showPart(int, tuple *&, Data *&);
+	int allToTmp(int, tuple *&, const char *);
+	int partToTmp(int, tuple *&, Data *&, const char *);
 
 private:
 	char databaseName[MAX_DATABASE_NAME_SIZE];

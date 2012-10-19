@@ -31,8 +31,58 @@ bool DB::select(Data *property, Data *tables, Data *qulification) {
 	tuple *p = new tuple[numOfAttribute];
 	bool result;
 	this->selecttmp = false;
-
 	int numOfResult = 0;
+
+	if (strcmp(qulification->name, "true") == 0) {
+		numOfResult = this->allToTmp(numOfAttribute, p, tableName);
+	} else {
+		numOfResult = this->partToTmp(numOfAttribute, p, qulification,
+				tableName);
+	}
+
+	/*	while (f.fetchTuple(p)) {
+	 tuple x;
+	 result = true;
+	 Data *q = qulification;
+	 while (q != NULL) {
+	 result = this->tupleJudge(q, x, p, numOfAttribute);
+	 if (result == true)
+	 q = q->next;
+	 else {
+	 break;
+	 }
+	 }
+	 if (result == true) {
+	 numOfResult++;
+	 this->transform(numOfAttribute, p);
+	 this->selecttmp = true;
+	 result = this->insertTmp(tableName, this->data);
+	 }
+	 deleteNewAttribute(p, numOfAttribute);
+	 }*/
+	if (numOfResult > 0) {
+		this->selecttmp = true;
+		result = this->showSelect(tableName, numOfAttribute, property);
+	}
+	return result;
+}
+
+int DB::allToTmp(int numOfAttribute, tuple *&p, const char * tableName) {
+	int numOfResult = 0;
+	while (f.fetchTuple(p)) {
+		numOfResult++;
+		this->transform(numOfAttribute, p);
+		this->selecttmp = true;
+		this->insertTmp(tableName, this->data);
+		deleteNewAttribute(p, numOfAttribute);
+	}
+	return numOfResult;
+}
+
+int DB::partToTmp(int numOfAttribute, tuple *&p, Data *&qulification,
+		const char * tableName) {
+	int numOfResult = 0;
+	bool result = true;
 	while (f.fetchTuple(p)) {
 		tuple x;
 		result = true;
@@ -53,11 +103,7 @@ bool DB::select(Data *property, Data *tables, Data *qulification) {
 		}
 		deleteNewAttribute(p, numOfAttribute);
 	}
-	if (numOfResult > 0) {
-		this->selecttmp = true;
-		result = this->showSelect(tableName, numOfAttribute, property);
-	}
-	return result;
+	return numOfResult;
 }
 
 void DB::transform(int numOfAttribute, tuple *&p) {
@@ -86,9 +132,9 @@ void DB::transform(int numOfAttribute, tuple *&p) {
 
 bool DB::tupleJudge(Data*&q, tuple&x, tuple*&p, int numOfAttribute) {
 	for (int i = 0; i < numOfAttribute; i++) {
-		if (strcmp(q->name, model->name) == 0) {
+		if (strcmp(q->name, model[i].name) == 0) {
 			x = p[i];
-			switch (model->type) {
+			switch (model[i].type) {
 			case TYPE_INT:
 				return this->compareInt(q, x);
 				break;
@@ -149,34 +195,76 @@ bool DB::showSelect(const char * tableName, int numOfAttribute,
 	else {
 		tuple *p = new tuple[numOfAttribute];
 		int numOfResult = 0;
-		Data *q = property;
+//		Data *q = property;
 		while (tmpf.fetchTuple(p)) {
 			numOfResult++;
 			cout << numOfResult << ":";
-			while (q != NULL) {
-				for (int i = 0; i < numOfAttribute; i++) {
-					if (strcmp(q->name, model[i].name) == 0) {
-						switch (model[i].type) {
-						case TYPE_INT:
-							cout << this->ChartoInt(p[i]) << " ";
-							break;
-						case TYPE_CHAR:
-							cout << p[i] << " ";
-							break;
-						default:
-							break;
-						}
-						break;
-					}
-				}
-				q = q->next;
+			if (strcmp(property->name, "*") == 0) {
+				this->showAll(numOfAttribute, p);
+			} else {
+				this->showPart(numOfAttribute, p, property);
 			}
+			/*while (q != NULL) {
+			 for (int i = 0; i < numOfAttribute; i++) {
+			 if (strcmp(q->name, model[i].name) == 0) {
+			 switch (model[i].type) {
+			 case TYPE_INT:
+			 cout << this->ChartoInt(p[i]) << " ";
+			 break;
+			 case TYPE_CHAR:
+			 cout << p[i] << " ";
+			 break;
+			 default:
+			 break;
+			 }
+			 break;
+			 }
+			 }
+			 q = q->next;
+			 }*/
 			cout << endl;
 			deleteNewAttribute(p, numOfAttribute);
 		}
 	}
 	deletePath(tmpPath);
 	return true;
+}
+
+void DB::showPart(int numOfAttribute, tuple *&p, Data *&property) {
+	Data *q = property;
+	while (q != NULL) {
+		for (int i = 0; i < numOfAttribute; i++) {
+			if (strcmp(q->name, model[i].name) == 0) {
+				switch (model[i].type) {
+				case TYPE_INT:
+					cout << this->ChartoInt(p[i]) << " ";
+					break;
+				case TYPE_CHAR:
+					cout << p[i] << " ";
+					break;
+				default:
+					break;
+				}
+				break;
+			}
+		}
+		q = q->next;
+	}
+}
+
+void DB::showAll(int numOfAttribute, tuple *&p) {
+	for (int i = 0; i < numOfAttribute; i++) {
+		switch (model[i].type) {
+		case TYPE_INT:
+			cout << this->ChartoInt(p[i]) << " ";
+			break;
+		case TYPE_CHAR:
+			cout << p[i] << " ";
+			break;
+		default:
+			break;
+		}
+	}
 }
 
 void DB::deleteNewAttribute(tuple *t, int num) {
@@ -201,7 +289,7 @@ bool DB::createTable(const char* tableName, Data * data) {
 	file.open((tablePath + DATA_FILE_NAME).data());
 	if (file.fail()) { // 数据文件不存在，即table不存在
 #ifdef linux
-		mkdir((tablePath).data(), 0777);
+	mkdir((tablePath).data(), 0777);
 #elif WIN32
 		mkdir((tablePath).data());
 #endif
@@ -236,7 +324,7 @@ bool DB::createDB(const char* databaseName) {
 	file.open((dbPath + MODEL_FILE_NAME).data());
 	if (file.fail()) { // 数据文件不存在，即数据库不存在
 #ifdef linux
-		mkdir((dbPath).data(), 0777);
+	mkdir((dbPath).data(), 0777);
 #elif WIN32
 		mkdir((dbPath).data());
 #endif
@@ -390,6 +478,6 @@ void DB::preparePathModelAddr(const char *tableName, block_addr addr) {
 	}
 }
 
-bool DB::deletePath(string path){
+bool DB::deletePath(string path) {
 	system(("rm -f -r " + path).data());
 }
