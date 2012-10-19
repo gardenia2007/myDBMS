@@ -14,6 +14,8 @@ DBMS::DBMS() {
 	data = NULL;
 	attribute = NULL;
 	tables = NULL;
+	begTime = new timeval;
+	endTime = new timeval;
 }
 
 void DBMS::run() {
@@ -26,9 +28,12 @@ void DBMS::run() {
 			cout << "bye" << endl;
 			return;
 		}
+		begin();
 		this->parseOpreate();
 		this->dispatchSql();
 		cout << this->result << endl;
+		end();
+//		cout << runTime << endl;
 	}
 }
 
@@ -402,6 +407,17 @@ void DBMS::parseOpreate() {
 		this->operate = DELETE_DATABASE;
 	else
 		this->operate = INVAILD_OPREATE;
+}
+
+void DBMS::begin() {
+	gettimeofday(begTime, NULL);
+}
+
+void DBMS::end() {
+	gettimeofday(endTime, NULL);
+	double sec = (double) (endTime->tv_usec - begTime->tv_usec) / 1000000;
+	sec += endTime->tv_sec - begTime->tv_sec;;
+	printf("\nRun time is %fs\n", sec);
 }
 
 DBMS::~DBMS() {
