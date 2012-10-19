@@ -310,16 +310,42 @@ bool DB::updateTable(Data *property, Data *tables, Data *qulification) {
 			}
 		}
 		if (result == true) {
-			result = this->updatedata();
+			result = this->updateData(property, numOfAttribute, p);
 		}
 		deleteNewAttribute(p, numOfAttribute);
 	}
 	return result;
 }
 
-bool DB::updatedata(){
+bool DB::updateData(Data *&property, int numOfAttribute, tuple *&p) {
+	Data *q = property;
+	while (q != NULL) {
+		for (int i = 0; i < numOfAttribute; i++) {
+			if (strcmp(q->name, model[i].name) == 0) {
+				switch (model[i].type) {
+				case TYPE_INT:
+					this->updateInt(q, p[i]);
+					break;
+				case TYPE_CHAR:
+					strcpy(p[i], q->value2);
+					break;
+				default:
+					break;
+				}
+			}
+		}
+		q = q->next;
+	}
+	if (q == NULL)
+		return true;
+	else
+		return false;
+}
 
-	return true;
+void DB::updateInt(Data *&q, tuple &x) {
+	int tmp;
+	tmp = atoi(q->value2);
+	x = reinterpret_cast<char *>(tmp);
 }
 
 bool DB::createDB(const char* databaseName) {

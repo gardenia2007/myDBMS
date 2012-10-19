@@ -58,7 +58,8 @@ public:
 	int allToTmp(int, tuple *&, const char *);
 	int partToTmp(int, tuple *&, Data *&, const char *);
 
-	bool updatedata();
+	bool updateData(Data *&, int, tuple *&);
+	void updateInt(Data *&, tuple &);
 
 private:
 	char databaseName[MAX_DATABASE_NAME_SIZE];

@@ -70,6 +70,7 @@ private:
 	bool parseInsert();
 	bool praseSelect(Data *&, string);
 	bool praseConnditon(Data *&);
+	bool parseUpdate(Data *&, string);
 
 	//bool createDatabase();
 	//bool deleteDatabase();

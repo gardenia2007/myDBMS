@@ -87,6 +87,35 @@ bool DBMS::praseConnditon(Data *&q) {
 	return true;
 }
 
+bool DBMS::parseUpdate(Data *&q, string seg) {
+	Data *p = new Data;
+	q = p;
+	p->next = p;
+	char tmp[MAX_NAME_SIZE];
+	string str = "";
+	int judge;
+	while (!endOfSql()) {
+		judge = this->getNextWord(tmp, DEFAULT_SIZE);
+		if (judge == -1) {
+			return false;
+		} else {
+			if (str.append(tmp) == seg) {
+				delete p->next;
+				p->next = NULL;
+				return true;
+			} else {
+				p = p->next;
+				str = "";
+				strcpy(p->name, tmp);
+				this->getNextWord(p->value, DEFAULT_SIZE);
+				this->getNextWord(p->value2, DEFAULT_SIZE);
+				p->next = new Data;
+			}
+		}
+	}
+	return true;
+}
+
 void DBMS::select() {
 	if (praseSelect(attribute, "from") && praseSelect(tables, "where")
 			&& praseConnditon(qualification)) {
@@ -159,7 +188,7 @@ bool DBMS::parseDeleteTable() {
 }
 
 void DBMS::deleteTable() {
-	if (!this->parseDeleteTable() || !db->deleteTable()) {
+	if (!this->parseDeleteTable() || !db->deleteTable(this->tableName)) {
 		result = "delete table <" + string(this->tableName) + "> fail!";
 		//        return false;
 	} else {
@@ -210,12 +239,14 @@ bool DBMS::parseUpdateChange(Data *&q, string seg) {
 }
 
 void DBMS::updateTable() {
-	if (!this->parseUpdateTable() || !db->updateTable()) {
-		result = "update table <" + string(this->tableName) + "> fail!";
-		//        return false;
+	if (praseSelect(tables, "set") && parseUpdate(attribute, "where")
+			&& praseConnditon(qualification)) {
+		if (db->updateTable(attribute, tables, qualification))
+			result = "update table <" + string(tables->name) + "> success!";
+		else
+			result = "update table <" + string(tables->name) + "> fail!";
 	} else {
-		result = "update table <" + string(this->tableName) + "> success!";
-		//        return true;
+		result = "update table <" + string(tables->name) + "> fail!";
 	}
 }
 
@@ -251,7 +282,7 @@ bool DBMS::createDB() {
 
 bool DBMS::deleteDB() {
 	//TODO 没写删除数据库
-	if (!this->parseDBName()) {
+	if (!this->parseDBName() || !db->deleteDB(this->dbName)) {
 		result = "delete database <" + string(dbName) + "> fail!";
 		return false;
 	} else {
@@ -416,7 +447,8 @@ void DBMS::begin() {
 void DBMS::end() {
 	gettimeofday(endTime, NULL);
 	double sec = (double) (endTime->tv_usec - begTime->tv_usec) / 1000000;
-	sec += endTime->tv_sec - begTime->tv_sec;;
+	sec += endTime->tv_sec - begTime->tv_sec;
+	;
 	printf("\nRun time is %fs\n", sec);
 }
 
