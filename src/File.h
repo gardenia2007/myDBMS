@@ -38,6 +38,7 @@ public:
 	bool prepareFetchTuple();
 	bool fetchTuple(tuple *); // 获取下一个元组，没有了就返回false
 	bool writeTuple(Data *); // 写入一个元组
+	bool deleteTuple();
 
 	int getAttributeNumFromModel(Model *); //Num Of Attribute || also used by class DB
 
@@ -48,6 +49,8 @@ private:
 	block_addr currentAddr, previousAddr;
 
 //	fstream rdtable, wrtable;
+
+	bool isDeleted();
 
 	Block block;
 

@@ -16,6 +16,41 @@ DB::~DB() {
 	//	file.close();
 }
 
+bool DB::deleteTuple(Data *property, Data *tables, Data *qulification) {
+	Index i = Index();
+	block_addr addr = i.getBlock(tables);
+
+	const char * tableName = tables->name;
+
+	preparePathModelAddr(tableName, addr);
+	if (!f.prepareFetchTuple()) // data文件为空
+		return 0;
+
+	int numOfAttribute = f.getAttributeNumFromModel(model);
+	tuple *p = new tuple[numOfAttribute];
+	bool result;
+
+	while (f.fetchTuple(p)) {
+		tuple x;
+		result = true;
+		Data *q = qulification;
+		while (q != NULL) {
+			result = this->tupleJudge(q, x, p, numOfAttribute);
+			if (result == true)
+				q = q->next;
+			else {
+				break;
+			}
+		}
+		if (result == true) {
+			deleteNewAttribute(p, numOfAttribute);
+			return f.deleteTuple();
+		}
+		deleteNewAttribute(p, numOfAttribute);
+	}
+	return result;
+}
+
 bool DB::select(Data *property, Data *tables, Data *qulification) {
 
 	Index i = Index();
@@ -148,12 +183,14 @@ bool DB::compareInt(Data *&q, tuple & x) {
 		else
 			return false;
 		break;
-	default:
+	case '<':
 		if (this->ChartoInt(x) < atoi(q->value2))
-			return false;
+			return true;
 		else
-			return 1;
+			return false;
 		break;
+	default:
+		return false;
 	}
 }
 
@@ -251,7 +288,7 @@ bool DB::createTable(const char* tableName, Data * data) {
 	file.open((tablePath + DATA_FILE_NAME).data());
 	if (file.fail()) { // 数据文件不存在，即table不存在
 #ifdef linux
-	mkdir((tablePath).data(), 0777);
+		mkdir((tablePath).data(), 0777);
 #elif WIN32
 		mkdir((tablePath).data());
 #endif
@@ -311,6 +348,7 @@ bool DB::updateTable(Data *property, Data *tables, Data *qulification) {
 		}
 		if (result == true) {
 			result = this->updateData(property, numOfAttribute, p);
+			//f
 		}
 		deleteNewAttribute(p, numOfAttribute);
 	}
@@ -356,7 +394,7 @@ bool DB::createDB(const char* databaseName) {
 	file.open((dbPath + MODEL_FILE_NAME).data());
 	if (file.fail()) { // 数据文件不存在，即数据库不存在
 #ifdef linux
-	mkdir((dbPath).data(), 0777);
+		mkdir((dbPath).data(), 0777);
 #elif WIN32
 		mkdir((dbPath).data());
 #endif
@@ -401,11 +439,11 @@ bool DB::initModal(const char *tableName, Data * data) {
 		file.write(reinterpret_cast<char *>(&zero), 24); // 24 bytes
 
 		filedNum++;
-		//		filedSize++; // 删除标识位
 		filedSize += size;
 
 		p = p->next;
 	}
+	filedSize += DELETE_FLAG_SIZE; // 删除标识位
 
 	file.seekp(MAX_TABLE_NAME_SIZE, ios::beg);
 	file.write(reinterpret_cast<char *>(&filedNum), sizeof(int)); // 属性个数

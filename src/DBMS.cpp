@@ -64,6 +64,31 @@ bool DBMS::praseSelect(Data *&q, string seg) {
 	return true;
 }
 
+bool DBMS::parseDisplay() {
+	tables = new Data;
+	tables->next = NULL;
+	if (getNextWord(tables->name, DEFAULT_SIZE) != -1)
+		return true;
+	else
+		return false;
+}
+
+void DBMS::displayTable() {
+	char s[5] = "true";
+	char a[2] = "*";
+	qualification = new Data;
+	attribute = new Data;
+//	qualification->name = "true";
+//	attribute->name = "*";
+	strcpy(qualification->name, s);
+	strcpy(attribute->name, a);
+
+	if (parseDisplay() && db->select(attribute, tables, qualification))
+		result = "display success";
+	else
+		result = "error ...";
+}
+
 bool DBMS::praseConnditon(Data *&q) {
 	Data *p = new Data;
 	q = p;
@@ -120,6 +145,18 @@ void DBMS::select() {
 	if (praseSelect(attribute, "from") && praseSelect(tables, "where")
 			&& praseConnditon(qualification)) {
 		db->select(attribute, tables, qualification);
+	} else {
+		result = "inquire failed!";
+	}
+}
+
+void DBMS::deleteTuple() {
+	if (praseSelect(attribute, "from") && praseSelect(tables, "where")
+			&& praseConnditon(qualification)) {
+		if(db->deleteTuple(attribute, tables, qualification))
+			result = "delete success";
+		else
+			result = "delete fail";
 	} else {
 		result = "inquire failed!";
 	}
@@ -394,11 +431,17 @@ void DBMS::dispatchSql() {
 	case UPDATE_TABLE:
 		this->updateTable();
 		break;
+	case DELETE_TUPLE:
+		this->deleteTuple();
+		break;
 	case DELETE_TABLE:
 		this->deleteTable();
 		break;
 	case CREATE_TABLE:
 		this->createTable();
+		break;
+	case DISPLAY_TABLE:
+		this->displayTable();
 		break;
 	case CREATE_DATABASE:
 		this->createDB();
@@ -430,8 +473,12 @@ void DBMS::parseOpreate() {
 		this->operate = CREATE_TABLE;
 	else if (word == "deletetable")
 		this->operate = DELETE_TABLE;
+	else if (word == "delete")
+		this->operate = DELETE_TUPLE;
 	else if (word == "use")
 		this->operate = USE_DATABASE;
+	else if (word == "display")
+		this->operate = DISPLAY_TABLE;
 	else if (word == "createdb")
 		this->operate = CREATE_DATABASE;
 	else if (word == "deletedb")

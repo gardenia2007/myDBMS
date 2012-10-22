@@ -59,6 +59,8 @@ private:
 	void insertTable();
 	void updateTable();
 	void deleteTable();
+	void displayTable();
+	void deleteTuple();
 
 	//parse opreate sql
 	bool parseCreateTable();
@@ -71,6 +73,7 @@ private:
 	bool praseSelect(Data *&, string);
 	bool praseConnditon(Data *&);
 	bool parseUpdate(Data *&, string);
+	bool parseDisplay();
 
 	//bool createDatabase();
 	//bool deleteDatabase();

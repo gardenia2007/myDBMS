@@ -44,22 +44,11 @@ public:
 	bool createTable(const char *, Data *);
 	bool insertTable(const char *, Data *);
 	bool updateTable(Data *, Data *, Data *);
+	bool deleteTuple(Data *, Data *, Data *);
 	bool deleteTable(const char *);
 
 	bool select(Data *, Data *, Data *);
 
-	bool compareInt(Data *&, tuple &);
-	bool tupleJudge(Data *&, tuple &, tuple *&, int);
-	void transform(int, tuple *&);
-	bool insertTmp(const char *, Data *);
-	bool showSelect(const char *, int, Data *&);
-	void showAll(int, tuple *&);
-	void showPart(int, tuple *&, Data *&);
-	int allToTmp(int, tuple *&, const char *);
-	int partToTmp(int, tuple *&, Data *&, const char *);
-
-	bool updateData(Data *&, int, tuple *&);
-	void updateInt(Data *&, tuple &);
 
 private:
 	char databaseName[MAX_DATABASE_NAME_SIZE];
@@ -90,6 +79,19 @@ private:
 	int getFiledSize(int, int);
 
 	bool deletePath(string path);
+
+	bool compareInt(Data *&, tuple &);
+	bool tupleJudge(Data *&, tuple &, tuple *&, int);
+	void transform(int, tuple *&);
+	bool insertTmp(const char *, Data *);
+	bool showSelect(const char *, int, Data *&);
+	void showAll(int, tuple *&);
+	void showPart(int, tuple *&, Data *&);
+	int allToTmp(int, tuple *&, const char *);
+	int partToTmp(int, tuple *&, Data *&, const char *);
+
+	bool updateData(Data *&, int, tuple *&);
+	void updateInt(Data *&, tuple &);
 
 };
 

@@ -45,41 +45,18 @@ bool File::fetchTuple(tuple *t) {
 	} else if (block.eot()) { // 如果读到最后一个元组
 		return false;
 	}
+
+	if (isDeleted()) {
+		return fetchTuple(t);
+	}
+
 	for (int i = 0; model[i].no != -1; i++) {
 		tmp = new char[model[i].size];
 		block.readChar(tmp, model[i].size);
 		t[i] = tmp;
 	}
-	return true;
-}
+	block.offset += DELETE_FLAG_SIZE;
 
-bool File::writeEmptyBlock(block_addr addr, int num) {
-	writeEmptyBlockFlag = !writeEmptyBlockFlag; // true;
-
-	for (int i = 0; i < num; i++) {
-		currentAddr = newBlock();
-		writeBlock(&block, currentAddr);
-	}
-
-	writeEmptyBlockFlag = !writeEmptyBlockFlag; // false;
-	return true;
-}
-
-bool File::setTablePath(string path) {
-	this->tablePath = path;
-	return true;
-}
-
-bool File::setBlockAddr(block_addr addr) {
-	if (addr == NOT_INDEX_FEILD) {
-		// set the flag
-		this->searchAll = true;
-		this->currentAddr = 0;
-	} else {
-		this->searchAll = false;
-		this->currentAddr = addr;
-	}
-	this->previousAddr = -1;
 	return true;
 }
 
@@ -112,12 +89,72 @@ bool File::writeTuple(Data * d) {
 			i++;
 			p = p->next;
 		}
+		char unDeleteF = NOT_DELETED_FLAG;
+		block.writeChar(&unDeleteF, DELETE_FLAG_SIZE);
 	}
 	updateRemainSpace(-1);
 	if (writeBlock(&block, currentAddr))
 		return true;
 	else
 		return false;
+}
+
+bool File::deleteTuple() {
+	int tmp = block.offset;
+	block.offset -= DELETE_FLAG_SIZE;
+	char deleteF = DELETED_FLAG;
+	block.writeChar(&deleteF, DELETE_FLAG_SIZE);
+	block.offset = tmp;
+	writeBlock(&block, currentAddr);
+	return true;
+}
+
+bool File::isDeleted() {
+	int tmp = block.offset;
+	int a = block.getTupleSize();
+	a += tmp; a -= DELETE_FLAG_SIZE;
+	block.offset = a;
+	char flag;
+
+	block.readChar(&flag, DELETE_FLAG_SIZE);
+
+	if (flag == DELETED_FLAG)
+		return true;
+	else {
+		block.offset = tmp;
+		return false;
+	}
+
+}
+
+bool File::writeEmptyBlock(block_addr addr, int num) {
+	writeEmptyBlockFlag = !writeEmptyBlockFlag; // true;
+
+	for (int i = 0; i < num; i++) {
+		currentAddr = newBlock();
+		writeBlock(&block, currentAddr);
+	}
+
+	writeEmptyBlockFlag = !writeEmptyBlockFlag; // false;
+	return true;
+}
+
+bool File::setTablePath(string path) {
+	this->tablePath = path;
+	return true;
+}
+
+bool File::setBlockAddr(block_addr addr) {
+	if (addr == NOT_INDEX_FEILD) {
+		// set the flag
+		this->searchAll = true;
+		this->currentAddr = 0;
+	} else {
+		this->searchAll = false;
+		this->currentAddr = addr;
+	}
+	this->previousAddr = -1;
+	return true;
 }
 
 /********** PRIVATE FUNCTION *************/

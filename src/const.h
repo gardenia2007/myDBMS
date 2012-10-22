@@ -50,6 +50,8 @@
 #define CREATE_DATABASE	6
 #define DELETE_DATABASE	7
 #define USE_DATABASE	8
+#define DISPLAY_TABLE	9
+#define DELETE_TUPLE	10
 
 
 #define BLOCK_HEAD_REMAIN_OFFSET	0
@@ -58,6 +60,10 @@
 #define BLOCK_HEAD_SIZE				12 // 4 + 4 + 4
 
 #define BLOCK_SIZE		1024
+
+#define DELETE_FLAG_SIZE	1
+#define DELETED_FLAG			'd'
+#define NOT_DELETED_FLAG		'h'
 
 typedef char * tuple;
 
