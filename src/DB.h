@@ -80,18 +80,20 @@ private:
 
 	bool deletePath(string path);
 
-	bool compareInt(Data *&, tuple &);
-	bool tupleJudge(Data *&, tuple &, tuple *&, int);
-	void transform(int, tuple *&);
+	bool compareInt(Data *, tuple );
+	bool tupleJudge(Data *, tuple , tuple *, int);
+	void transform(int, tuple *);
 	bool insertTmp(const char *, Data *);
-	bool showSelect(const char *, int, Data *&);
-	void showAll(int, tuple *&);
-	void showPart(int, tuple *&, Data *&);
-	int allToTmp(int, tuple *&, const char *);
-	int partToTmp(int, tuple *&, Data *&, const char *);
+	bool showSelect(const char *, int, Data *);
+	void showAll(int, tuple *);
+	void showPart(int, tuple *, Data *);
+	int allToTmp(int, tuple *, const char *);
+	int partToTmp(int, tuple *, Data *, const char *);
 
-	bool updateData(Data *&, int, tuple *&);
-	void updateInt(Data *&, tuple &);
+	bool updateData(Data *, int, tuple *);
+	void updateInt(Data *, tuple);
+
+	bool makeNewTuple(const char *, tuple *, int, Data *);
 
 };
 
