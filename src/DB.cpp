@@ -640,48 +640,55 @@ bool DB::makeNewTuple(const char * tableName, tuple *p, int numOfAttribute,
 
 bool DB::link(Data *property, Data *tables, Data *qulification) {
 	bool result;
-	File file1 = new File;
-	File file2 = new File;
-	this->preWork(tables, file1);
-	this->preWork(tables->next, file2);
-	result = this->compareTuple(file1, file2, qulification);
+	File file1 = File();
+	File file2 = File();
+	this->preWork(tables, &file1);
+	this->preWork(tables->next, &file2);
+	result = this->compareTuple(&file1, &file2, qulification);
 
 	return result;
 }
 
-void DB::preWork(Data *tables, File &file) {
+void DB::preWork(Data *tables, File *file) {
 	this->setTablePath(tables->name);
-	file.setTablePath(tablePath);
+	file->setTablePath(tablePath);
+
+	file->setBlockAddr(-1);
+	file->prepareFetchTuple();
 
 	this->praseModel();
-	file.model = this->model;
+	file->model = this->model;
 }
 
-bool DB::compareTuple(File file1, File file2, Data *qulification) {
+bool DB::compareTuple(File *file1, File *file2, Data *qulification) {
 	char tmp1[MAX_NAME_SIZE];
 	char tmp2[MAX_NAME_SIZE];
 	this->cutString(qulification, tmp1, tmp2);
-	int num1 = file1.getAttributeNumFromModel(file1.model);
-	int num2 = file2.getAttributeNumFromModel(file2.model);
+	int num1 = file1->getAttributeNumFromModel(file1->model);
+	int num2 = file2->getAttributeNumFromModel(file2->model);
 	int i, j, numOfResult = 0;
 	tuple *p = new tuple[num1];
 	tuple *q = new tuple[num2];
-	while (file1.fetchTuple(p)) {
+	while (file1->fetchTuple(p)) {
 		for (i = 0; i < num1; i++) {
-			if ((strcmp(tmp1, file1.model[i].name)) == 0)
+			if ((strcmp(tmp1, file1->model[i].name)) == 0)
 				break;
 		}
-		while (file2.fetchTuple(q)) {
-			for (j = 0; j < num1; j++) {
-				if ((strcmp(tmp1, file1.model[j].name)) == 0)
+		file2->setBlockAddr(-1);
+		file2->prepareFetchTuple();
+		while (file2->fetchTuple(q)) {
+			for (j = 0; j < num2; j++) {
+				if ((strcmp(tmp2, file2->model[j].name)) == 0)
 					break;
 			}
 			if ((strcmp(p[i], q[j])) == 0) {
 				numOfResult++;
-				this->showLink(p, q, j, numOfResult, num1, num2);
+				this->showLink(file1, file2, p, q, j, numOfResult, num1, num2);
 			}
 		}
 	}
+	cout << "------------------------------" << endl << "find " << numOfResult
+			<< " results." << endl;
 	return true;
 }
 
@@ -691,23 +698,37 @@ void DB::cutString(Data * qulification, char *tmp1, char *tmp2) {
 	int i = tmp.find(".") + 1;
 	int j = tmp.length();
 	tmp.copy(tmp1, j - i, i);
+	tmp1[j-i] = '\0';
 	tmp = "";
 	tmp.assign(qulification->value2);
 	i = tmp.find(".") + 1;
 	j = tmp.length();
 	tmp.copy(tmp2, j - i, i);
+	tmp2[j-i] = '\0';
 }
 
-void DB::showLink(tuple *p, tuple *q, int j, int numOfResult, int num1,
-		int num2) {
-	cout << numOfResult << ":";
+void DB::showLink(File *file1, File *file2, tuple *p, tuple *q, int j,
+		int numOfResult, int num1, int num2) {
+	if (numOfResult == 1) {
+		cout << "no:" << "\t";
+		for (int i = 0; i < num1; i++) {
+			cout << file1->model[i].name << "\t";
+		}
+		for (int k = 0; k < num2; k++) {
+			if (k != j)
+				cout << file2->model[k].name << "\t";
+		}
+		cout << endl;
+		cout << "------------------------------" << endl;
+	}
+	cout << numOfResult << ":\t";
 	for (int i = 0; i < num1; i++) {
-		switch (model[i].type) {
+		switch (file1->model[i].type) {
 		case TYPE_INT:
-			cout << this->ChartoInt(p[i]) << " ";
+			cout << this->ChartoInt(p[i]) << "\t";
 			break;
 		case TYPE_CHAR:
-			cout << p[i] << " ";
+			cout << p[i] << "\t";
 			break;
 		default:
 			break;
@@ -715,17 +736,18 @@ void DB::showLink(tuple *p, tuple *q, int j, int numOfResult, int num1,
 	}
 	for (int k = 0; k < num2; k++) {
 		if (k != j) {
-			switch (model[k].type) {
+			switch (file2->model[k].type) {
 			case TYPE_INT:
-				cout << this->ChartoInt(p[k]) << " ";
+				cout << this->ChartoInt(q[k]) << "\t";
 				break;
 			case TYPE_CHAR:
-				cout << p[k] << " ";
+				cout << q[k] << "\t";
 				break;
 			default:
 				break;
 			}
 		}
 	}
+	cout << endl;
 }
 

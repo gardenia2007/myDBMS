@@ -97,10 +97,10 @@ private:
 	int allToTmp(int, tuple *, const char *);
 	int partToTmp(int, tuple *, Data *, const char *);
 	bool link(Data *, Data *, Data *);
-	void preWork(Data *, File &);
-	bool compareTuple(File, File, Data *);
+	void preWork(Data *, File *);
+	bool compareTuple(File *, File *, Data *);
 	void cutString(Data *, char *, char *);
-	void showLink(tuple *, tuple *, int, int, int, int);
+	void showLink(File *, File *, tuple *, tuple *, int, int, int, int);
 
 	bool updateData(Data *, int, tuple *);
 
