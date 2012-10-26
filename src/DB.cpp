@@ -225,7 +225,7 @@ bool DB::insertTmp(const char *tableName, Data *data) {
 bool DB::showSelect(const char * tableName, int numOfAttribute,
 		Data *property) {
 	int numOfResult = 0;
-	showTableHead(numOfAttribute, property);
+	showTableHead(numOfAttribute, property, true);
 	cout << "------------------------------" << endl;
 	preparePathModelAddr(tableName, NULL);
 	if (!tmpf.prepareFetchTuple())

@@ -168,6 +168,9 @@ bool DBMS::parseInsert() {
 	int i = 0;
 	Data *p = new Data;
 
+	// skip "into"
+	getNextWord(tableName, DEFAULT_SIZE);
+
 	if (getNextWord(tableName, DEFAULT_SIZE) == -1)
 		return false;
 	pos++; // skip '('
