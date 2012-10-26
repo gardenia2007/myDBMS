@@ -101,7 +101,7 @@ bool DB::select(Data *property, Data *tables, Data *qulification) {
 	return result;
 }
 
-int DB::allToTmp(int numOfAttribute, tuple *&p, const char * tableName) {
+int DB::allToTmp(int numOfAttribute, tuple *p, const char * tableName) {
 	int numOfResult = 0;
 	while (f.fetchTuple(p)) {
 		numOfResult++;
@@ -113,7 +113,7 @@ int DB::allToTmp(int numOfAttribute, tuple *&p, const char * tableName) {
 	return numOfResult;
 }
 
-int DB::partToTmp(int numOfAttribute, tuple *&p, Data *&qulification,
+int DB::partToTmp(int numOfAttribute, tuple *p, Data *qulification,
 		const char * tableName) {
 	int numOfResult = 0;
 	bool result = true;
@@ -140,7 +140,7 @@ int DB::partToTmp(int numOfAttribute, tuple *&p, Data *&qulification,
 	return numOfResult;
 }
 
-void DB::transform(int numOfAttribute, tuple *&p) {
+void DB::transform(int numOfAttribute, tuple *p) {
 	Data *q = new Data;
 	this->data = q;
 	q->next = q;
@@ -164,7 +164,7 @@ void DB::transform(int numOfAttribute, tuple *&p) {
 	q->next = NULL;
 }
 
-bool DB::tupleJudge(Data*&q, tuple&x, tuple*&p, int numOfAttribute) {
+bool DB::tupleJudge(Data *q, tuple x, tuple *p, int numOfAttribute) {
 	for (int i = 0; i < numOfAttribute; i++) {
 		if (strcmp(q->name, model[i].name) == 0) {
 			x = p[i];
@@ -187,7 +187,7 @@ bool DB::tupleJudge(Data*&q, tuple&x, tuple*&p, int numOfAttribute) {
 	return true;
 }
 
-bool DB::compareInt(Data *&q, tuple & x) {
+bool DB::compareInt(Data *q, tuple x) {
 	char tmp = q->value[0];
 	switch (tmp) {
 	case '=':
@@ -224,7 +224,7 @@ bool DB::insertTmp(const char *tableName, Data *data) {
 }
 
 bool DB::showSelect(const char * tableName, int numOfAttribute,
-		Data *&property) {
+		Data *property) {
 	this->preparePathModelAddr(tableName, 0);
 	if (!tmpf.prepareFetchTuple())
 		return false;
@@ -247,7 +247,7 @@ bool DB::showSelect(const char * tableName, int numOfAttribute,
 	return true;
 }
 
-void DB::showPart(int numOfAttribute, tuple *&p, Data *&property) {
+void DB::showPart(int numOfAttribute, tuple *p, Data *property) {
 	Data *q = property;
 	while (q != NULL) {
 		for (int i = 0; i < numOfAttribute; i++) {
@@ -269,7 +269,7 @@ void DB::showPart(int numOfAttribute, tuple *&p, Data *&property) {
 	}
 }
 
-void DB::showAll(int numOfAttribute, tuple *&p) {
+void DB::showAll(int numOfAttribute, tuple *p) {
 	for (int i = 0; i < numOfAttribute; i++) {
 		switch (model[i].type) {
 		case TYPE_INT:
@@ -372,22 +372,26 @@ bool DB::updateTable(Data *property, Data *tables, Data *qulification) {
 			}
 		}
 		if (result == true) {
-			result = this->updateData(property, numOfAttribute, p);
-			//f
+			f.deleteTuple();
+			result = this->makeNewTuple(tableName, p, numOfAttribute, property);
+			deleteNewAttribute(p, numOfAttribute);
+			break;
 		}
 		deleteNewAttribute(p, numOfAttribute);
 	}
 	return result;
 }
 
-bool DB::updateData(Data *&property, int numOfAttribute, tuple *&p) {
+bool DB::updateData(Data *property, int numOfAttribute, tuple *p) {
 	Data *q = property;
+	int tmp;
 	while (q != NULL) {
 		for (int i = 0; i < numOfAttribute; i++) {
 			if (strcmp(q->name, model[i].name) == 0) {
 				switch (model[i].type) {
 				case TYPE_INT:
-					this->updateInt(q, p[i]);
+					tmp = atoi(q->value2);
+					strcpy(p[i], reinterpret_cast<char *>(&tmp));
 					break;
 				case TYPE_CHAR:
 					strcpy(p[i], q->value2);
@@ -405,11 +409,6 @@ bool DB::updateData(Data *&property, int numOfAttribute, tuple *&p) {
 		return false;
 }
 
-void DB::updateInt(Data *&q, tuple &x) {
-	int tmp;
-	tmp = atoi(q->value2);
-	x = reinterpret_cast<char *>(tmp);
-}
 
 bool DB::createDB(const char* databaseName) {
 	this->dbName = string(databaseName);
@@ -582,5 +581,33 @@ void DB::preparePathModelAddr(const char *tableName, Data * q) {
 bool DB::deletePath(string path) {
 	system(("rm -f -r " + path).data());
 	return true;
+}
+
+bool DB::makeNewTuple(const char * tableName, tuple *p, int numOfAttribute, Data *property){
+	bool result;
+	result = this->updateData(property, numOfAttribute, p);
+	if(result == true){
+		Data * data = new Data;
+		Data * q = data;
+		q->next = q;
+		for (int i = 0; i < numOfAttribute; i++){
+			q = q->next;
+			switch (model[i].type){
+			case TYPE_INT:
+				itoa(this->ChartoInt(p[i]), q->name, 10);
+				break;
+			case TYPE_CHAR:
+				strcpy(q->name,p[i]);
+				break;
+			default:
+				break;
+			}
+			q->next = new Data;
+		}
+		delete q->next;
+		q->next = NULL;
+		result = this->insertTable(tableName, data);
+	}
+	return result;
 }
 
