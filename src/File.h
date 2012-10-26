@@ -48,13 +48,13 @@ private:
 	string tablePath;
 	block_addr currentAddr, previousAddr;
 
-//	fstream rdtable, wrtable;
-
-	bool isDeleted();
-
 	Block block;
 
 	bool searchAll, newFile, writeEmptyBlockFlag;
+
+//	fstream rdtable, wrtable;
+
+	bool isDeleted();
 
 	int getTupleSizeFromModel(Model *); //
 

@@ -60,8 +60,14 @@ private:
 	bool selecttmp;
 
 	File f, tmpf;
+	Index index;
 
-	void preparePathModelAddr(const char *, int); // 根据表名设置表文件路径，解析model，设置欲读块的起始地址
+	void getBlockAddr(const char*, Data *);
+
+	bool getPKValue(Data *, int *); // 根据model和查询条件得到主键的值，如果没有主键返回false
+
+	// 根据表名设置表文件路径，解析model，根据主键的值查找索引设置欲读块的起始地址
+	void preparePathModelAddr(const char *, Data *);
 
 	void setTablePath(const char *);
 

@@ -10,6 +10,7 @@
 DB::DB() {
 	f = File();
 	model = NULL;
+	index = Index();
 }
 
 DB::~DB() {
@@ -18,11 +19,11 @@ DB::~DB() {
 
 bool DB::deleteTuple(Data *property, Data *tables, Data *qulification) {
 	Index i = Index();
-	block_addr addr = i.getBlock(tables);
+	block_addr addr = i.getBlockAddr(0);
 
 	const char * tableName = tables->name;
 
-	preparePathModelAddr(tableName, addr);
+	preparePathModelAddr(tableName, qulification);
 	if (!f.prepareFetchTuple()) // data文件为空
 		return 0;
 
@@ -51,21 +52,39 @@ bool DB::deleteTuple(Data *property, Data *tables, Data *qulification) {
 	return result;
 }
 
+bool DB::getPKValue(Data * q, int *pk) {
+//	int numfAttribute = f.getAttributeNumFromModel(model);
+	const char * equal = "=";
+	while (q != NULL) {
+		//
+		if(strcmp(q->name, "true"))
+			return false;
+
+		// 名字匹配，且操作是等于时，
+		if (strcmp(q->name, model[0].name) == 0
+				&& strcmp(q->value, equal) == 0) {
+			*pk = atoi(q->value2);
+			return true;
+		}
+		q = q->next;
+	}
+	return false;
+}
+
+// 单个表的选择
 bool DB::select(Data *property, Data *tables, Data *qulification) {
 
-	Index i = Index();
-	block_addr addr = i.getBlock(tables);
-
 	const char * tableName = tables->name;
+	this->selecttmp = false;
 
-	preparePathModelAddr(tableName, addr);
+	preparePathModelAddr(tableName, qulification);
+
 	if (!f.prepareFetchTuple()) // data文件为空
 		return 0;
 
 	int numOfAttribute = f.getAttributeNumFromModel(model);
 	tuple *p = new tuple[numOfAttribute];
 	bool result;
-	this->selecttmp = false;
 	int numOfResult = 0;
 
 	if (strcmp(qulification->name, "true") == 0) {
@@ -195,8 +214,8 @@ bool DB::compareInt(Data *&q, tuple & x) {
 }
 
 bool DB::insertTmp(const char *tableName, Data *data) {
-	block_addr blockAddr = 0;
-	preparePathModelAddr(tableName, blockAddr);
+
+	preparePathModelAddr(tableName, NULL);
 
 	if (tmpf.writeTuple(data))
 		return true;
@@ -272,9 +291,13 @@ void DB::deleteNewAttribute(tuple *t, int num) {
 }
 
 bool DB::insertTable(const char *tableName, Data * data) {
-	// TODO blockAddr 根据 INDEX 确定
-	block_addr blockAddr = 0;
-	preparePathModelAddr(tableName, blockAddr);
+	preparePathModelAddr(tableName, NULL);
+
+	// insert 需要特殊处理，因为数据格式不是qulification那种---->设计原因。。
+	// 有时间再改吧
+	int pk = atoi(data->name);
+	block_addr addr = index.getBlockAddr(pk);
+	f.setBlockAddr(addr);
 
 	if (f.writeTuple(data))
 		return true;
@@ -300,6 +323,9 @@ bool DB::createTable(const char* tableName, Data * data) {
 
 		initModal(tableName, data);
 
+		praseModel();
+		index.initIndex(&tablePath, model);
+
 		return true;
 	} else { // 表已经存在
 		return false;
@@ -321,12 +347,11 @@ bool DB::deleteTable(const char * tableName) {
 }
 
 bool DB::updateTable(Data *property, Data *tables, Data *qulification) {
-	Index i = Index();
-	block_addr addr = i.getBlock(tables);
+//	block_addr addr = i.getBlock(tables);
 
 	const char * tableName = tables->name;
 
-	preparePathModelAddr(tableName, addr);
+	preparePathModelAddr(tableName, 0);
 	if (!f.prepareFetchTuple()) // data文件为空
 		return 0;
 
@@ -528,13 +553,19 @@ void DB::setTablePath(const char *tableName) {
 	}
 }
 
-void DB::preparePathModelAddr(const char *tableName, block_addr addr) {
+void DB::preparePathModelAddr(const char *tableName, Data * q) {
+	int pk;
+	block_addr addr = -1;
+
 	if (this->selecttmp == false) {
 		this->setTablePath(tableName);
 		f.setTablePath(tablePath);
 
 		this->praseModel();
 		f.model = this->model;
+
+		if (getPKValue(q, &pk))
+			addr = index.getBlockAddr(pk);
 
 		f.setBlockAddr(addr);
 	} else {
@@ -544,11 +575,12 @@ void DB::preparePathModelAddr(const char *tableName, block_addr addr) {
 		this->praseModel();
 		tmpf.model = this->model;
 
-		tmpf.setBlockAddr(addr);
+		tmpf.setBlockAddr(0);
 	}
 }
 
 bool DB::deletePath(string path) {
 	system(("rm -f -r " + path).data());
+	return true;
 }
 

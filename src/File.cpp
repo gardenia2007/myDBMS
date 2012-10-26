@@ -42,8 +42,17 @@ bool File::fetchTuple(tuple *t) {
 		if (!readNextBlock()) // 如果没有下一块了,返回false
 			return false;
 		block.offset = BLOCK_HEAD_SIZE;
-	} else if (block.eot()) { // 如果读到最后一个元组
-		return false;
+	}
+
+	while(block.eot()) { // 如果读到当前块最后一个元组, 跳过没有内容的块
+		// 如果是搜索全部的块，则继续顺序读下一块
+		if (searchAll){
+			if (!readNextBlock()) // 如果没有下一块了,返回false
+				return false;
+			block.offset = BLOCK_HEAD_SIZE;
+		}else{
+			return false;
+		}
 	}
 
 	if (isDeleted()) {
@@ -112,7 +121,8 @@ bool File::deleteTuple() {
 bool File::isDeleted() {
 	int tmp = block.offset;
 	int a = block.getTupleSize();
-	a += tmp; a -= DELETE_FLAG_SIZE;
+	a += tmp;
+	a -= DELETE_FLAG_SIZE;
 	block.offset = a;
 	char flag;
 
@@ -167,7 +177,7 @@ bool File::readNextBlock() {
 	else
 		currentAddr = block.getNextBlockAddr();
 
-	if (currentAddr != -1) {
+	if (getBlockNum() > currentAddr && currentAddr != -1) {
 		readBlock(&block, currentAddr);
 		return true;
 	} else {

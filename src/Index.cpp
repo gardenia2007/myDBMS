@@ -12,8 +12,8 @@ Index::Index() {
 	f = File();
 }
 
-block_addr Index::getBlock(Data *condition) {
-	return simpleHash(condition); //
+block_addr Index::getBlockAddr(int value) {
+	return simpleHash(value); //
 }
 
 bool Index::initIndex(string *tablePath, Model *m) {
@@ -35,11 +35,10 @@ bool Index::initSimpleHash() {
 		return false;
 }
 
-block_addr Index::simpleHash(Data *con) {
+block_addr Index::simpleHash(int v) {
 	// 假设con为 con.name = con.value2 形式
-	int data = atoi(con->value2);
-
-	return hash(data);
+//	int data = atoi(con->value2);
+	return v % hash_num;
 }
 
 block_addr Index::hash(int data) {
