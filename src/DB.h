@@ -91,7 +91,6 @@ private:
 	int partToTmp(int, tuple *, Data *, const char *);
 
 	bool updateData(Data *, int, tuple *);
-	void updateInt(Data *, tuple);
 
 	bool makeNewTuple(const char *, tuple *, int, Data *);
 

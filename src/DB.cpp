@@ -384,11 +384,6 @@ bool DB::updateData(Data *property, int numOfAttribute, tuple *p) {
 		return false;
 }
 
-void DB::updateInt(Data *q, tuple x) {
-	int tmp;
-	tmp = atoi(q->value2);
-	x = reinterpret_cast<char *>(atoi(q->value2));
-}
 
 bool DB::createDB(const char* databaseName) {
 	this->dbName = string(databaseName);
