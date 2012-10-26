@@ -57,7 +57,7 @@ bool DB::getPKValue(Data * q, int *pk) {
 	const char * equal = "=";
 	while (q != NULL) {
 		//
-		if(strcmp(q->name, "true"))
+		if (strcmp(q->name, "true"))
 			return false;
 
 		// 名字匹配，且操作是等于时，
@@ -74,29 +74,34 @@ bool DB::getPKValue(Data * q, int *pk) {
 // 单个表的选择
 bool DB::select(Data *property, Data *tables, Data *qulification) {
 
-	const char * tableName = tables->name;
-	this->selecttmp = false;
-
-	preparePathModelAddr(tableName, qulification);
-
-	if (!f.prepareFetchTuple()) // data文件为空
-		return 0;
-
-	int numOfAttribute = f.getAttributeNumFromModel(model);
-	tuple *p = new tuple[numOfAttribute];
 	bool result;
-	int numOfResult = 0;
-
-	if (strcmp(qulification->name, "true") == 0) {
-		numOfResult = this->allToTmp(numOfAttribute, p, tableName);
+	if (tables->next != NULL) {
+		this->link(property, tables, qulification);
 	} else {
-		numOfResult = this->partToTmp(numOfAttribute, p, qulification,
-				tableName);
-	}
+		const char * tableName = tables->name;
+		this->selecttmp = false;
 
-	if (numOfResult > 0) {
-		this->selecttmp = true;
-		result = this->showSelect(tableName, numOfAttribute, property);
+		preparePathModelAddr(tableName, qulification);
+
+		if (!f.prepareFetchTuple()) // data文件为空
+			return 0;
+
+		int numOfAttribute = f.getAttributeNumFromModel(model);
+		tuple *p = new tuple[numOfAttribute];
+		int numOfResult = 0;
+
+		if (strcmp(qulification->name, "true") == 0) {
+			numOfResult = this->allToTmp(numOfAttribute, p, tableName);
+		} else {
+			numOfResult = this->partToTmp(numOfAttribute, p, qulification,
+					tableName);
+		}
+
+		if (numOfResult > 0) {
+			this->selecttmp = true;
+			result = this->showSelect(tableName, numOfAttribute, property);
+		}
+		this->selecttmp = false;
 	}
 	return result;
 }
@@ -311,7 +316,7 @@ bool DB::createTable(const char* tableName, Data * data) {
 	file.open((tablePath + DATA_FILE_NAME).data());
 	if (file.fail()) { // 数据文件不存在，即table不存在
 #ifdef linux
-		mkdir((tablePath).data(), 0777);
+	mkdir((tablePath).data(), 0777);
 #elif WIN32
 		mkdir((tablePath).data());
 #endif
@@ -409,7 +414,6 @@ bool DB::updateData(Data *property, int numOfAttribute, tuple *p) {
 		return false;
 }
 
-
 bool DB::createDB(const char* databaseName) {
 	this->dbName = string(databaseName);
 
@@ -418,7 +422,7 @@ bool DB::createDB(const char* databaseName) {
 	file.open((dbPath + MODEL_FILE_NAME).data());
 	if (file.fail()) { // 数据文件不存在，即数据库不存在
 #ifdef linux
-		mkdir((dbPath).data(), 0777);
+	mkdir((dbPath).data(), 0777);
 #elif WIN32
 		mkdir((dbPath).data());
 #endif
@@ -583,21 +587,22 @@ bool DB::deletePath(string path) {
 	return true;
 }
 
-bool DB::makeNewTuple(const char * tableName, tuple *p, int numOfAttribute, Data *property){
+bool DB::makeNewTuple(const char * tableName, tuple *p, int numOfAttribute,
+		Data *property) {
 	bool result;
 	result = this->updateData(property, numOfAttribute, p);
-	if(result == true){
+	if (result == true) {
 		Data * data = new Data;
 		Data * q = data;
 		q->next = q;
-		for (int i = 0; i < numOfAttribute; i++){
+		for (int i = 0; i < numOfAttribute; i++) {
 			q = q->next;
-			switch (model[i].type){
+			switch (model[i].type) {
 			case TYPE_INT:
 				itoa(this->ChartoInt(p[i]), q->name, 10);
 				break;
 			case TYPE_CHAR:
-				strcpy(q->name,p[i]);
+				strcpy(q->name, p[i]);
 				break;
 			default:
 				break;
@@ -609,5 +614,96 @@ bool DB::makeNewTuple(const char * tableName, tuple *p, int numOfAttribute, Data
 		result = this->insertTable(tableName, data);
 	}
 	return result;
+}
+
+bool DB::link(Data *property, Data *tables, Data *qulification) {
+	bool result;
+	File file1 = new File;
+	File file2 = new File;
+	this->preWork(tables, file1);
+	this->preWork(tables->next, file2);
+	result = this->compareTuple(file1, file2, qulification);
+
+	return result;
+}
+
+void DB::preWork(Data *tables, File &file) {
+	this->setTablePath(tables->name);
+	file.setTablePath(tablePath);
+
+	this->praseModel();
+	file.model = this->model;
+}
+
+bool DB::compareTuple(File file1, File file2, Data *qulification) {
+	char tmp1[MAX_NAME_SIZE];
+	char tmp2[MAX_NAME_SIZE];
+	this->cutString(qulification, tmp1, tmp2);
+	int num1 = file1.getAttributeNumFromModel(file1.model);
+	int num2 = file2.getAttributeNumFromModel(file2.model);
+	int i, j, numOfResult = 0;
+	tuple *p = new tuple[num1];
+	tuple *q = new tuple[num2];
+	while (file1.fetchTuple(p)) {
+		for (i = 0; i < num1; i++) {
+			if ((strcmp(tmp1, file1.model[i].name)) == 0)
+				break;
+		}
+		while (file2.fetchTuple(q)) {
+			for (j = 0; j < num1; j++) {
+				if ((strcmp(tmp1, file1.model[j].name)) == 0)
+					break;
+			}
+			if ((strcmp(p[i], q[j])) == 0) {
+				numOfResult++;
+				this->showLink(p, q, j, numOfResult, num1, num2);
+			}
+		}
+	}
+	return true;
+}
+
+void DB::cutString(Data * qulification, char *tmp1, char *tmp2) {
+	string tmp = "";
+	tmp.assign(qulification->name);
+	int i = tmp.find(".") + 1;
+	int j = tmp.length();
+	tmp.copy(tmp1, j - i, i);
+	tmp = "";
+	tmp.assign(qulification->value2);
+	i = tmp.find(".") + 1;
+	j = tmp.length();
+	tmp.copy(tmp2, j - i, i);
+}
+
+void DB::showLink(tuple *p, tuple *q, int j, int numOfResult, int num1,
+		int num2) {
+	cout << numOfResult << ":";
+	for (int i = 0; i < num1; i++) {
+		switch (model[i].type) {
+		case TYPE_INT:
+			cout << this->ChartoInt(p[i]) << " ";
+			break;
+		case TYPE_CHAR:
+			cout << p[i] << " ";
+			break;
+		default:
+			break;
+		}
+	}
+	for (int k = 0; k < num2; k++) {
+		if (k != j) {
+			switch (model[k].type) {
+			case TYPE_INT:
+				cout << this->ChartoInt(p[k]) << " ";
+				break;
+			case TYPE_CHAR:
+				cout << p[k] << " ";
+				break;
+			default:
+				break;
+			}
+		}
+	}
 }
 
