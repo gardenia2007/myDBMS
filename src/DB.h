@@ -93,6 +93,7 @@ private:
 	bool showSelect(const char *, int, Data *);
 	void showAll(int, tuple *);
 	void showPart(int, tuple *, Data *);
+	void showTableHead(int, Data *, bool);
 	int allToTmp(int, tuple *, const char *);
 	int partToTmp(int, tuple *, Data *, const char *);
 	bool link(Data *, Data *, Data *);
