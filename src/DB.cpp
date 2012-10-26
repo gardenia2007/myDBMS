@@ -98,6 +98,7 @@ bool DB::select(Data *property, Data *tables, Data *qulification) {
 		this->selecttmp = true;
 		result = this->showSelect(tableName, numOfAttribute, property);
 	}
+	this->selecttmp = false;
 	return result;
 }
 
@@ -347,11 +348,10 @@ bool DB::deleteTable(const char * tableName) {
 }
 
 bool DB::updateTable(Data *property, Data *tables, Data *qulification) {
-//	block_addr addr = i.getBlock(tables);
 
 	const char * tableName = tables->name;
 
-	preparePathModelAddr(tableName, 0);
+	preparePathModelAddr(tableName, qulification);
 	if (!f.prepareFetchTuple()) // data文件为空
 		return 0;
 
@@ -594,7 +594,7 @@ bool DB::makeNewTuple(const char * tableName, tuple *p, int numOfAttribute, Data
 			q = q->next;
 			switch (model[i].type){
 			case TYPE_INT:
-				itoa(this->ChartoInt(p[i]), q->name, 10);
+				sprintf(q->name, "%d", this->ChartoInt(p[i]));
 				break;
 			case TYPE_CHAR:
 				strcpy(q->name,p[i]);
