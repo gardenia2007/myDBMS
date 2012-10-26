@@ -97,6 +97,8 @@ bool DBMS::praseConnditon(Data *&q) {
 	while (!endOfSql()) {
 		p = p->next;
 		judge = this->getNextWord(p->name, DEFAULT_SIZE);
+		if (strcmp(p->name, "and") == 0)
+			judge = this->getNextWord(p->name, DEFAULT_SIZE);
 		if (judge != -1)
 			judge = this->getNextWord(p->value, DEFAULT_SIZE);
 		if (judge != -1)
@@ -153,7 +155,7 @@ void DBMS::select() {
 void DBMS::deleteTuple() {
 	if (praseSelect(attribute, "from") && praseSelect(tables, "where")
 			&& praseConnditon(qualification)) {
-		if(db->deleteTuple(attribute, tables, qualification))
+		if (db->deleteTuple(attribute, tables, qualification))
 			result = "delete success";
 		else
 			result = "delete fail";
@@ -165,6 +167,9 @@ void DBMS::deleteTuple() {
 bool DBMS::parseInsert() {
 	int i = 0;
 	Data *p = new Data;
+
+	// skip "into"
+	getNextWord(tableName, DEFAULT_SIZE);
 
 	if (getNextWord(tableName, DEFAULT_SIZE) == -1)
 		return false;

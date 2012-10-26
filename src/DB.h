@@ -96,8 +96,14 @@ private:
 	bool showSelect(const char *, int, Data *);
 	void showAll(int, tuple *);
 	void showPart(int, tuple *, Data *);
+	void showTableHead(int, Data *, bool);
 	int allToTmp(int, tuple *, const char *);
 	int partToTmp(int, tuple *, Data *, const char *);
+	bool link(Data *, Data *, Data *);
+	void preWork(Data *, File *);
+	bool compareTuple(File *, File *, Data *);
+	void cutString(Data *, char *, char *);
+	void showLink(File *, File *, tuple *, tuple *, int, int, int, int);
 
 	bool updateData(Data *, int, tuple *);
 

@@ -44,13 +44,13 @@ bool File::fetchTuple(tuple *t) {
 		block.offset = BLOCK_HEAD_SIZE;
 	}
 
-	while(block.eot()) { // 如果读到当前块最后一个元组, 跳过没有内容的块
+	while (block.eot()) { // 如果读到当前块最后一个元组, 跳过没有内容的块
 		// 如果是搜索全部的块，则继续顺序读下一块
-		if (searchAll){
+		if (searchAll) {
 			if (!readNextBlock()) // 如果没有下一块了,返回false
 				return false;
 			block.offset = BLOCK_HEAD_SIZE;
-		}else{
+		} else {
 			return false;
 		}
 	}
@@ -76,31 +76,33 @@ bool File::writeTuple(Data * d) {
 		readBlock(&block, currentAddr);
 	}
 
-	if (block.getRemainSpace() <= 0) { // 如果当前块没有足够空间
+	while(block.getRemainSpace() <= 0) { // 如果当前块没有足够空间
 		if (!readNextBlock()) // nextBlock读取失败，即没有下一个块
 			currentAddr = newBlock();
-	} else {
-		block.autoOffset();
-		Data *p = d;
-		int i = 0, num;
-		while (p != NULL) {
-			switch (model[i].type) {
-			case TYPE_INT:
-				num = atoi(p->name);
-				block.writeInt(&num);
-				break;
-			case TYPE_CHAR:
-				block.writeChar(p->name, model[i].size);
-				break;
-			default:
-				return false;
-			}
-			i++;
-			p = p->next;
-		}
-		char unDeleteF = NOT_DELETED_FLAG;
-		block.writeChar(&unDeleteF, DELETE_FLAG_SIZE);
+
 	}
+
+	block.autoOffset();
+	Data *p = d;
+	int i = 0, num;
+	while (p != NULL) {
+		switch (model[i].type) {
+		case TYPE_INT:
+			num = atoi(p->name);
+			block.writeInt(&num);
+			break;
+		case TYPE_CHAR:
+			block.writeChar(p->name, model[i].size);
+			break;
+		default:
+			return false;
+		}
+		i++;
+		p = p->next;
+	}
+	char unDeleteF = NOT_DELETED_FLAG;
+	block.writeChar(&unDeleteF, DELETE_FLAG_SIZE);
+
 	updateRemainSpace(-1);
 	if (writeBlock(&block, currentAddr))
 		return true;
