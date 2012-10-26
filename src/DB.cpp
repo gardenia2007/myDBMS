@@ -18,8 +18,6 @@ DB::~DB() {
 }
 
 bool DB::deleteTuple(Data *property, Data *tables, Data *qulification) {
-	Index i = Index();
-	block_addr addr = i.getBlockAddr(0);
 
 	const char * tableName = tables->name;
 
@@ -57,7 +55,7 @@ bool DB::getPKValue(Data * q, int *pk) {
 	const char * equal = "=";
 	while (q != NULL) {
 		//
-		if(strcmp(q->name, "true"))
+		if (strcmp(q->name, "true"))
 			return false;
 
 		// 名字匹配，且操作是等于时，
@@ -226,15 +224,17 @@ bool DB::insertTmp(const char *tableName, Data *data) {
 
 bool DB::showSelect(const char * tableName, int numOfAttribute,
 		Data *property) {
-	this->preparePathModelAddr(tableName, 0);
+	int numOfResult = 0;
+	showTableHead(numOfAttribute, property);
+	cout << "------------------------------" << endl;
+	preparePathModelAddr(tableName, NULL);
 	if (!tmpf.prepareFetchTuple())
 		return false;
 	else {
 		tuple *p = new tuple[numOfAttribute];
-		int numOfResult = 0;
 		while (tmpf.fetchTuple(p)) {
 			numOfResult++;
-			cout << numOfResult << ":";
+			cout << numOfResult << ":\t";
 			if (strcmp(property->name, "*") == 0) {
 				this->showAll(numOfAttribute, p);
 			} else {
@@ -244,8 +244,30 @@ bool DB::showSelect(const char * tableName, int numOfAttribute,
 			deleteNewAttribute(p, numOfAttribute);
 		}
 	}
+	cout << "------------------------------" << endl << "find " << numOfResult
+			<< " results." << endl;
 	deletePath(tmpPath);
 	return true;
+}
+
+void DB::showTableHead(int num, Data * property, bool br = true) {
+	if (br)
+		cout << "no:\t";
+	if (strcmp(property->name, "*") == 0) {
+		for (int i = 0; i < num; i++) {
+			cout << model[i].name << "\t";
+		}
+	} else {
+		Data *q = property;
+		while (q != NULL) {
+			for (int i = 0; i < num; i++)
+				if (strcmp(q->name, model[i].name) == 0)
+					cout << model[i].name << "\t";
+			q = q->next;
+		}
+	}
+	if (br)
+		cout << endl;
 }
 
 void DB::showPart(int numOfAttribute, tuple *p, Data *property) {
@@ -255,10 +277,10 @@ void DB::showPart(int numOfAttribute, tuple *p, Data *property) {
 			if (strcmp(q->name, model[i].name) == 0) {
 				switch (model[i].type) {
 				case TYPE_INT:
-					cout << this->ChartoInt(p[i]) << " ";
+					cout << this->ChartoInt(p[i]) << "\t";
 					break;
 				case TYPE_CHAR:
-					cout << p[i] << " ";
+					cout << p[i] << "\t";
 					break;
 				default:
 					break;
@@ -274,10 +296,10 @@ void DB::showAll(int numOfAttribute, tuple *p) {
 	for (int i = 0; i < numOfAttribute; i++) {
 		switch (model[i].type) {
 		case TYPE_INT:
-			cout << this->ChartoInt(p[i]) << " ";
+			cout << this->ChartoInt(p[i]) << "\t";
 			break;
 		case TYPE_CHAR:
-			cout << p[i] << " ";
+			cout << p[i] << "\t";
 			break;
 		default:
 			break;
@@ -408,7 +430,6 @@ bool DB::updateData(Data *property, int numOfAttribute, tuple *p) {
 	else
 		return false;
 }
-
 
 bool DB::createDB(const char* databaseName) {
 	this->dbName = string(databaseName);
@@ -583,21 +604,22 @@ bool DB::deletePath(string path) {
 	return true;
 }
 
-bool DB::makeNewTuple(const char * tableName, tuple *p, int numOfAttribute, Data *property){
+bool DB::makeNewTuple(const char * tableName, tuple *p, int numOfAttribute,
+		Data *property) {
 	bool result;
 	result = this->updateData(property, numOfAttribute, p);
-	if(result == true){
+	if (result == true) {
 		Data * data = new Data;
 		Data * q = data;
 		q->next = q;
-		for (int i = 0; i < numOfAttribute; i++){
+		for (int i = 0; i < numOfAttribute; i++) {
 			q = q->next;
-			switch (model[i].type){
+			switch (model[i].type) {
 			case TYPE_INT:
 				sprintf(q->name, "%d", this->ChartoInt(p[i]));
 				break;
 			case TYPE_CHAR:
-				strcpy(q->name,p[i]);
+				strcpy(q->name, p[i]);
 				break;
 			default:
 				break;
