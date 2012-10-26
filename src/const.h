@@ -17,7 +17,7 @@
 
 // 数据库文件路径
 #ifdef linux // linux下
-#define DATA_PATH		"/home/y/workspace/myDBMS/db/"
+#define DATA_PATH		"/home/feast/"
 #define PATH_SPARATOR	"/"
 #elif WIN32 // windows下
 #define DATA_PATH		"D:\\myDBMS\\db\\"
@@ -52,6 +52,9 @@
 #define USE_DATABASE	8
 #define DISPLAY_TABLE	9
 #define DELETE_TUPLE	10
+#define SHOW_DETAILS	11    // for "show tables" and "show databases";
+#define DESCRIBE		12
+
 
 
 #define BLOCK_HEAD_REMAIN_OFFSET	0

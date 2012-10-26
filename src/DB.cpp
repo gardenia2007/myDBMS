@@ -611,3 +611,43 @@ bool DB::makeNewTuple(const char * tableName, tuple *p, int numOfAttribute, Data
 	return result;
 }
 
+bool DB::describeTable(char * tableName){
+	int i, modelNum;
+	Model * p;
+	setTablePath(tableName);
+	if (this->dbName.empty())
+		return false;
+	modelNum = 0;
+	this->praseModel();
+	p = model;
+	while(p[modelNum++].no != -1);
+	modelNum--;
+	cout <<  "TableName\t" << "Type\t" << "Size\t" << left << "Key\t\n";
+
+	cout << model[0].name << "\t\t";
+	if (model[0].type == TYPE_INT)
+		cout << "int\t" << model[0].size << '\t' << "Pri\t\n";
+	else
+		cout << "char\t" << model[0].size << '\t' << "Pri\t\n";
+
+	for (i = 1; i < modelNum; i++){
+		cout << model[i].name << "\t\t";
+		if (model[i].type == TYPE_INT)
+			cout << "int\t" << model[i].size << '\t' << "\t\n";
+		else
+			cout << "char\t" << model[i].size << '\t' << "\t\n";
+	}
+	cout << modelNum << " Attributes, " << model[modelNum].size
+			<< "byte each typle\n";
+	praseModel();
+	return false;
+}
+
+
+string DB::getdbName(){
+	return this->dbName;
+}
+
+string DB::getdbPath(){
+	return this->dbPath;
+}
