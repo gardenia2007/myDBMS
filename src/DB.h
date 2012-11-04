@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <iomanip>
 
 #ifdef linux
 #include <sys/stat.h>
@@ -49,7 +50,9 @@ public:
 
 	bool select(Data *, Data *, Data *);
 
-
+	bool describeTable(char *);
+	string getdbName();
+	string getdbPath();
 private:
 	char databaseName[MAX_DATABASE_NAME_SIZE];
 	string dbName;
@@ -105,6 +108,10 @@ private:
 	bool updateData(Data *, int, tuple *);
 
 	bool makeNewTuple(const char *, tuple *, int, Data *);
+
+
+
+
 
 };
 

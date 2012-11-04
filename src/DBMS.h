@@ -19,6 +19,9 @@
 #include <stdio.h>
 #include <sys/time.h>
 #include <time.h>
+#include <cctype>
+#include <dirent.h>
+#include <cstdio>
 #include "DB.h"
 
 using namespace std;
@@ -74,6 +77,12 @@ private:
 	bool praseConnditon(Data *&);
 	bool parseUpdate(Data *&, string);
 	bool parseDisplay();
+
+	bool showDetails(); //show
+	bool showDir(char * word);
+
+	bool describe();   //describe table;
+
 
 	//bool createDatabase();
 	//bool deleteDatabase();

@@ -457,6 +457,12 @@ void DBMS::dispatchSql() {
 	case DELETE_DATABASE:
 		this->deleteDB();
 		break;
+	case SHOW_DETAILS:
+		this->showDetails();
+		break;
+	case DESCRIBE:
+		describe();
+		break;
 	default:
 		return;
 	}
@@ -488,9 +494,70 @@ void DBMS::parseOpreate() {
 		this->operate = CREATE_DATABASE;
 	else if (word == "deletedb")
 		this->operate = DELETE_DATABASE;
+	else if (word == "show")
+		this->operate = SHOW_DETAILS;
+	else if (word == "describe")
+		this->operate = DESCRIBE;
 	else
 		this->operate = INVAILD_OPREATE;
 }
+
+
+//show tables and show databases
+bool DBMS::showDetails(){
+	char word[MAX_NAME_SIZE] = {'\0'};
+	int judge;
+	judge = this->getNextWord(word, MAX_NAME_SIZE);
+	if (judge != -1){
+		if (!strcmp(word, "databases")){
+			if (showDir(word))
+				cout << "All database\n";
+			return true;
+		}
+		else if (!strcmp(word, "tables")){
+			if(!this->db->getdbName().empty()){
+				if (this->showDir(word))
+					cout << "All tables in " << this->db->getdbName() << endl;
+			}
+			return true;
+		}
+		else
+			cout << "syntax error!\n";
+	} else
+		cout << "syntax error!\n";
+	return false;
+}
+
+bool DBMS::showDir(char * word){
+	//int i, j, length, ans;
+	struct dirent * ent = NULL;
+	DIR *dir = NULL;
+	if (!strcmp(word, "databases"))
+		dir = opendir(DATA_PATH);
+	else
+		dir = opendir(this->db->getdbPath().data());
+	if(dir != NULL){
+		while(ent = readdir(dir)){
+			if (ent->d_name[0] != '.' && (strcmp(ent->d_name, "model")))
+				puts(ent->d_name);
+		}
+	}
+	return true;
+}
+
+bool DBMS::describe(){
+	char tableName[MAX_NAME_SIZE];
+	int judge;
+	judge = this->getNextWord(tableName, MAX_NAME_SIZE);
+	cout << tableName << endl;
+	if (judge != -1 && !db->getdbPath().empty()){
+		cout << tableName << endl;
+		this->db->describeTable(tableName);
+		return true;
+	}
+	return false;
+}
+
 
 void DBMS::begin() {
 	gettimeofday(begTime, NULL);
